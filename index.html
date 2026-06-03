@@ -2,246 +2,456 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
 <title>Cidades Inteligentes · ODS 9 + 11</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #05050A;
-    --surface: #0F0F18;
-    --surface2: #16162A;
-    --border: rgba(255,255,255,0.07);
-    --text: #F2F2F7;
-    --text-secondary: rgba(242,242,247,0.65); /* Aumentado levemente para melhor leitura em telas com brilho baixo */
+    --bg-base: #000000;
+    --surface: rgba(28, 28, 30, 0.45);
+    --surface-hover: rgba(44, 44, 46, 0.55);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-shine: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+    
+    --text-primary: #F5F5F7;
+    --text-secondary: #86868B;
+    
     --blue: #0A84FF;
-    --blue-glow: rgba(10,132,255,0.25);
     --green: #30D158;
-    --green-glow: rgba(48,209,88,0.25);
     --orange: #FF9F0A;
-    --orange-glow: rgba(255,159,10,0.25);
     --purple: #BF5AF2;
-    --radius: 24px;
-    --radius-sm: 16px;
+    
+    --radius-xl: 32px;
+    --radius-lg: 24px;
+    --radius-md: 16px;
+    
+    --ease-apple: cubic-bezier(0.25, 1, 0.5, 1);
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html { scroll-behavior: smooth; }
 
   body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Sora', -apple-system, sans-serif;
+    background: var(--bg-base);
+    color: var(--text-primary);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     overflow-x: hidden;
     min-height: 100dvh;
+    letter-spacing: -0.01em;
   }
 
-  /* ── NOISE OVERLAY ── */
-  body::before {
-    content: ''; position: fixed; inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none; z-index: 0; opacity: 0.6;
+  /* ── BACKGROUND AMORPHOUS BLOBS (Estética Liquid) ── */
+  .bg-blobs {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+    background: var(--bg-base);
+  }
+  .blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.4;
+    animation: blobFloat 20s ease-in-out infinite alternate;
+  }
+  .blob.b1 { width: 400px; height: 400px; background: rgba(10, 132, 255, 0.2); top: -100px; left: -100px; }
+  .blob.b2 { width: 350px; height: 350px; background: rgba(191, 90, 242, 0.2); bottom: -50px; right: -100px; animation-delay: -5s; }
+  .blob.b3 { width: 300px; height: 300px; background: rgba(48, 209, 88, 0.15); top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: -10s; }
+
+  @keyframes blobFloat {
+    0% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -50px) scale(1.1); }
+    66% { transform: translate(-20px, 20px) scale(0.9); }
+    100% { transform: translate(0, 0) scale(1); }
   }
 
   /* ── PROGRESS BAR ── */
   .progress-bar {
-    position: fixed; top: 0; left: 0; height: 3px; /* Levemente mais espessa para celular */
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
     background: linear-gradient(90deg, var(--blue), var(--purple), var(--green));
-    width: 0%; z-index: 200; transition: width 0.1s linear;
-    border-radius: 0 2px 2px 0; box-shadow: 0 0 10px rgba(10,132,255,0.8);
+    width: 0%;
+    z-index: 200;
+    transition: width 0.1s linear;
+    box-shadow: 0 0 10px rgba(10,132,255,0.4);
   }
 
-  /* ── HERO ── */
+  /* ── HERO SECTION ── */
   .hero {
-    position: relative; min-height: 100dvh; display: flex; flex-direction: column;
-    justify-content: flex-end; padding: 0 0 max(40px, env(safe-area-inset-bottom));
-    overflow: hidden;
+    position: relative;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 0 24px max(60px, env(safe-area-inset-bottom));
   }
-
-  #particle-canvas { position: absolute; inset: 0; pointer-events: none; z-index: 1; opacity: 0.5; }
 
   .hero-globe {
-    position: absolute; top: 0; left: 0; right: 0; height: 65%;
-    display: flex; align-items: center; justify-content: center; z-index: 2;
+    position: absolute;
+    top: 5%; left: 0; right: 0;
+    height: 55%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    pointer-events: none;
   }
 
   .globe-svg {
-    width: min(340px, 90vw); height: min(340px, 90vw); /* Levemente maior */
-    animation: float 6s ease-in-out infinite; filter: drop-shadow(0 0 40px rgba(10,132,255,0.2));
+    width: min(340px, 90vw);
+    height: min(340px, 90vw);
+    animation: floatGlobe 8s ease-in-out infinite;
+    filter: drop-shadow(0 0 50px rgba(10,132,255,0.15));
   }
 
-  @keyframes float {
-    0%,100% { transform: translateY(0px) rotate(0deg); }
-    33%      { transform: translateY(-10px) rotate(0.5deg); }
-    66%      { transform: translateY(-6px) rotate(-0.5deg); }
+  @keyframes floatGlobe {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-15px); }
   }
 
-  .globe-pulse { position: absolute; top: 50%; left: 50%; width: min(340px, 90vw); height: min(340px, 90vw); transform: translate(-50%, -50%); pointer-events: none; }
-  .pulse-ring { position: absolute; inset: -20px; border-radius: 50%; border: 1px solid rgba(10,132,255,0.15); animation: pulseRing 3s ease-out infinite; }
-  .pulse-ring:nth-child(2) { inset: -40px; animation-delay: 1s; border-color: rgba(10,132,255,0.08); }
-  .pulse-ring:nth-child(3) { inset: -60px; animation-delay: 2s; border-color: rgba(10,132,255,0.04); }
-  @keyframes pulseRing { 0% { opacity: 1; transform: scale(0.95); } 100% { opacity: 0; transform: scale(1.05); } }
+  .hero-content {
+    position: relative;
+    z-index: 2;
+  }
 
-  .hero-content { position: relative; z-index: 3; padding: 0 24px; }
+  .ods-badges {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    animation: slideUpFade 1s var(--ease-apple) forwards;
+  }
 
-  .ods-badges { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; animation: slideUp 0.8s cubic-bezier(0.16,1,0.3,1) both; animation-delay: 0.2s; }
-  .badge { display: flex; align-items: center; gap: 7px; padding: 7px 14px 7px 10px; border-radius: 100px; font-size: 11px; font-weight: 600; letter-spacing: 0.02em; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid; position: relative; overflow: hidden; }
-  .badge-9  { background: rgba(255,159,10,0.12); border-color: rgba(255,159,10,0.3); color: var(--orange); }
-  .badge-11 { background: rgba(48,209,88,0.12); border-color: rgba(48,209,88,0.3); color: var(--green); }
-  .badge-dot { width: 8px; height: 8px; border-radius: 50%; }
-  .badge-9 .badge-dot  { background: var(--orange); box-shadow: 0 0 6px var(--orange); animation: dotPulse 2s ease-in-out infinite; }
-  .badge-11 .badge-dot { background: var(--green);  box-shadow: 0 0 6px var(--green);  animation: dotPulse 2s ease-in-out infinite 0.5s; }
-  @keyframes dotPulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.7); } }
+  .badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    background: var(--surface);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    position: relative;
+    overflow: hidden;
+  }
+  .badge::before { content: ''; position: absolute; inset: 0; background: var(--glass-shine); pointer-events: none; }
+  .badge-9  { color: var(--orange); }
+  .badge-11 { color: var(--green); }
+  .badge-dot { width: 6px; height: 6px; border-radius: 50%; }
+  .badge-9 .badge-dot  { background: var(--orange); box-shadow: 0 0 8px var(--orange); }
+  .badge-11 .badge-dot { background: var(--green);  box-shadow: 0 0 8px var(--green); }
 
-  .hero-title { font-size: clamp(40px, 11vw, 52px); font-weight: 800; line-height: 1.05; letter-spacing: -0.03em; margin-bottom: 14px; animation: slideUp 0.8s cubic-bezier(0.16,1,0.3,1) both; animation-delay: 0.35s; }
-  .hero-title em { font-style: normal; background: linear-gradient(135deg, var(--blue) 0%, var(--purple) 60%, #FF6B9D 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; background-size: 200%; animation: gradientShift 4s ease-in-out infinite alternate; }
-  @keyframes gradientShift { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
-
-  .hero-sub { font-size: 15px; font-weight: 300; color: var(--text-secondary); line-height: 1.6; max-width: 340px; margin-bottom: 36px; animation: slideUp 0.8s cubic-bezier(0.16,1,0.3,1) both; animation-delay: 0.5s; }
-
-  .scroll-hint { display: flex; flex-direction: column; align-items: center; gap: 8px; animation: slideUp 0.8s cubic-bezier(0.16,1,0.3,1) both; animation-delay: 0.7s; }
-  .scroll-pill { width: 32px; height: 52px; border: 2px solid rgba(255,255,255,0.15); border-radius: 100px; display: flex; align-items: flex-start; justify-content: center; padding-top: 8px; position: relative; overflow: hidden; }
-  .scroll-dot { width: 4px; height: 8px; background: rgba(255,255,255,0.8); border-radius: 100px; animation: scrollDot 2s ease-in-out infinite; }
-  @keyframes scrollDot { 0% { transform: translateY(0); opacity: 1; } 80% { transform: translateY(16px); opacity: 0; } 100% { transform: translateY(0); opacity: 0; } }
-  .scroll-label { font-size: 11px; color: var(--text-secondary); letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; }
-
-  @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-
-  /* ── ODS INTRO ── */
-  .ods-intro { padding: 0 20px 40px; position: relative; perspective: 1000px; }
-  .section-label { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-  .section-label::before { content: ''; width: 20px; height: 1px; background: var(--text-secondary); }
-
-  .ods-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-  .ods-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 20px 16px; position: relative; overflow: hidden; transition: transform 0.2s ease-out, box-shadow 0.2s ease-out; transform-style: preserve-3d; }
-  .ods-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
-  .ods-card.nine::before { background: linear-gradient(90deg, var(--orange), transparent); }
-  .ods-card.eleven::before { background: linear-gradient(90deg, var(--green), transparent); }
-
-  .ods-number { font-size: 12px; font-weight: 700; letter-spacing: 0.06em; margin-bottom: 6px; opacity: 0.8; }
-  .ods-card.nine .ods-number { color: var(--orange); }
-  .ods-card.eleven .ods-number { color: var(--green); }
-  .ods-name { font-size: 13px; font-weight: 600; line-height: 1.35; color: var(--text); }
-  .ods-icon-big { font-size: 28px; margin-bottom: 10px; display: block; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5)); transform: translateZ(20px); } /* Efeito 3D sutil no icone */
-
-  .unifier { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 18px 20px; display: flex; align-items: center; gap: 14px; position: relative; overflow: hidden; }
-  .unifier-icon { width: 44px; height: 44px; background: linear-gradient(135deg, var(--blue), var(--purple)); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; box-shadow: 0 4px 16px rgba(10,132,255,0.3); animation: iconFloat 4s ease-in-out infinite; }
-  @keyframes iconFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
-  .unifier-text { font-size: 13px; line-height: 1.5; color: var(--text-secondary); }
-  .unifier-text strong { color: var(--text); font-weight: 600; }
-
-  /* ── PILLAR SECTIONS ── */
-  .pillars { padding: 0 20px 60px; display: flex; flex-direction: column; gap: 20px; }
-  .pillar { border-radius: var(--radius); overflow: hidden; position: relative; opacity: 0; transform: translateY(40px); transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1); }
-  .pillar.visible { opacity: 1; transform: translateY(0); }
-
-  .pillar-header { padding: 28px 24px 24px; position: relative; cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent; }
-  .pillar-header:active { background: rgba(255,255,255,0.02); }
-  .pillar.blue .pillar-header { background: linear-gradient(145deg, #0A1628 0%, #0A0A18 100%); border-bottom: 1px solid rgba(10,132,255,0.15); }
-  .pillar.green .pillar-header { background: linear-gradient(145deg, #0A1A10 0%, #0A0A18 100%); border-bottom: 1px solid rgba(48,209,88,0.15); }
-  .pillar.orange .pillar-header { background: linear-gradient(145deg, #1A1005 0%, #0A0A18 100%); border-bottom: 1px solid rgba(255,159,10,0.15); }
-
-  .pillar-toggle { position: absolute; top: 20px; right: 20px; width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; transition: transform 0.35s cubic-bezier(0.16,1,0.3,1), background 0.2s; font-size: 16px; font-weight: 300; color: rgba(255,255,255,0.8); pointer-events: none; }
-  .pillar.collapsed .pillar-toggle { transform: rotate(0deg); }
-  .pillar:not(.collapsed) .pillar-toggle { transform: rotate(45deg); background: rgba(255,255,255,0.15); }
-
-  .pillar-glow { position: absolute; width: 200px; height: 200px; border-radius: 50%; filter: blur(60px); opacity: 0.18; top: -60px; right: -60px; pointer-events: none; }
-  .pillar.blue .pillar-glow { background: var(--blue); }
-  .pillar.green .pillar-glow { background: var(--green); }
-  .pillar.orange .pillar-glow { background: var(--orange); }
-
-  .pillar-num { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 12px; opacity: 0.8; }
-  .pillar.blue .pillar-num { color: var(--blue); }
-  .pillar.green .pillar-num { color: var(--green); }
-  .pillar.orange .pillar-num { color: var(--orange); }
-
-  .pillar-icon-wrap { width: 56px; height: 56px; border-radius: 18px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; transition: transform 0.4s cubic-bezier(0.16,1,0.3,1); }
-  .pillar-header:active .pillar-icon-wrap { transform: scale(0.92); }
-  .pillar.blue .pillar-icon-wrap { background: var(--blue-glow); border: 1px solid rgba(10,132,255,0.3); }
-  .pillar.green .pillar-icon-wrap { background: var(--green-glow); border: 1px solid rgba(48,209,88,0.3); }
-  .pillar.orange .pillar-icon-wrap { background: var(--orange-glow); border: 1px solid rgba(255,159,10,0.3); }
-
-  .pillar-title { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; margin-bottom: 8px; }
-  .pillar-desc { font-size: 13.5px; font-weight: 300; color: var(--text-secondary); line-height: 1.65; font-family: 'DM Sans', sans-serif; max-width: calc(100% - 40px); }
-
-  /* Ajuste no max-height para evitar cortes no mobile */
-  .pillar-body-wrapper { overflow: hidden; max-height: 1200px; transition: max-height 0.55s cubic-bezier(0.16,1,0.3,1), opacity 0.4s ease; opacity: 1; }
-  .pillar.collapsed .pillar-body-wrapper { max-height: 0; opacity: 0; }
-
-  .pillar-body { background: var(--surface); padding: 20px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 10px; }
-
-  .feat { display: flex; align-items: flex-start; gap: 14px; padding: 14px 16px; background: var(--surface2); border-radius: 14px; border: 1px solid var(--border); position: relative; overflow: hidden; }
-  .feat-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
-  .pillar.blue .feat-icon { background: rgba(10,132,255,0.1); }
-  .pillar.green .feat-icon { background: rgba(48,209,88,0.1); }
-  .pillar.orange .feat-icon { background: rgba(255,159,10,0.1); }
-
-  .feat-content { flex: 1; }
-  .feat-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; line-height: 1.3; color: var(--text); }
-  .feat-sub { font-size: 12px; color: var(--text-secondary); line-height: 1.5; font-family: 'DM Sans', sans-serif; font-weight: 300; }
-
-  .pillar-stat { margin-top: 4px; padding: 16px 18px; border-radius: 14px; border: 1px solid; display: flex; align-items: center; gap: 14px; position: relative; overflow: hidden; }
-  .pillar.blue .pillar-stat { border-color: rgba(10,132,255,0.2); background: rgba(10,132,255,0.06); }
-  .pillar.green .pillar-stat { border-color: rgba(48,209,88,0.2); background: rgba(48,209,88,0.06); }
-  .pillar.orange .pillar-stat { border-color: rgba(255,159,10,0.2); background: rgba(255,159,10,0.06); }
-  .stat-num { font-size: 32px; font-weight: 800; letter-spacing: -0.04em; line-height: 1; min-width: 72px; }
-  .pillar.blue .stat-num { color: var(--blue); }
-  .pillar.green .stat-num { color: var(--green); }
-  .pillar.orange .stat-num { color: var(--orange); }
-  .stat-text { font-size: 12px; color: var(--text-secondary); line-height: 1.4; font-family: 'DM Sans', sans-serif; }
-  .stat-source { font-size: 10px; color: rgba(242,242,247,0.4); margin-top: 4px; letter-spacing: 0.02em; font-weight: 600; }
-
-  /* ── NAV DOTS (Melhorada para Mobile) ── */
-  .nav-dots { position: fixed; right: 14px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 12px; z-index: 100; }
-  .ndot { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.25); transition: all 0.3s ease; position: relative; }
-  /* Área de toque expandida para mobile */
-  .ndot::before { content: ''; position: absolute; inset: -15px; cursor: pointer; } 
-  .ndot.active { background: white; height: 22px; border-radius: 3px; box-shadow: 0 0 8px rgba(255,255,255,0.5); }
-
-  /* ── FOOTER & KAHOOT FAB ── */
-  .footer { padding: 30px 24px 120px; text-align: center; border-top: 1px solid var(--border); position: relative; background: linear-gradient(180deg, transparent, rgba(0,0,0,0.5)); }
-  .footer::before { content: ''; position: absolute; top: -1px; left: 50%; transform: translateX(-50%); width: 60px; height: 3px; background: linear-gradient(90deg, var(--blue), var(--purple), var(--green)); border-radius: 2px; }
-  .footer-text { font-size: 13px; color: var(--text-secondary); line-height: 1.7; font-family: 'DM Sans', sans-serif; font-style: italic; max-width: 300px; margin: 0 auto; }
-  
-  .kahoot-fab {
-    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(150px);
-    background: #46178f; /* Cor oficial do Kahoot */
-    color: white; font-weight: 700; font-size: 15px;
-    padding: 14px 28px; border-radius: 100px;
-    display: flex; align-items: center; gap: 10px;
-    box-shadow: 0 10px 30px rgba(70, 23, 143, 0.5);
-    border: 2px solid rgba(255,255,255,0.1);
-    text-decoration: none; z-index: 999;
-    transition: transform 0.5s cubic-bezier(0.16,1,0.3,1), opacity 0.5s ease;
+  .hero-title {
+    font-size: clamp(40px, 11vw, 56px);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+    margin-bottom: 16px;
+    animation: slideUpFade 1s var(--ease-apple) forwards 0.1s;
     opacity: 0;
   }
-  .kahoot-fab.visible { transform: translateX(-50%) translateY(0); opacity: 1; }
-  .kahoot-fab:active { transform: translateX(-50%) scale(0.95); }
+  
+  .hero-title span {
+    display: block;
+    background: linear-gradient(135deg, #FFFFFF 0%, #A1A1A6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .hero-title em {
+    font-style: normal;
+    background: linear-gradient(135deg, var(--blue) 0%, var(--purple) 50%, var(--green) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
 
-  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+  .hero-sub {
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    max-width: 90%;
+    margin-bottom: 40px;
+    animation: slideUpFade 1s var(--ease-apple) forwards 0.2s;
+    opacity: 0;
+  }
+
+  .scroll-hint {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    animation: slideUpFade 1s var(--ease-apple) forwards 0.4s;
+    opacity: 0;
+  }
+  
+  .scroll-icon {
+    width: 24px; height: 40px;
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    display: flex; justify-content: center;
+    padding-top: 6px;
+    background: rgba(255,255,255,0.02);
+    backdrop-filter: blur(10px);
+  }
+  
+  .scroll-dot {
+    width: 4px; height: 6px;
+    background: var(--text-secondary);
+    border-radius: 4px;
+    animation: scrollBounce 2s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+  }
+  
+  @keyframes scrollBounce {
+    0%, 100% { transform: translateY(0); opacity: 0.5; }
+    50% { transform: translateY(12px); opacity: 1; }
+  }
+
+  /* ── ODS INTRO (GLASS CARDS) ── */
+  .ods-intro {
+    padding: 20px 24px 60px;
+  }
+
+  .section-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-label::before, .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--glass-border), transparent);
+  }
+
+  .ods-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .glass-card {
+    background: var(--surface);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    padding: 24px 20px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s var(--ease-apple), background 0.2s;
+  }
+  .glass-card::before { content: ''; position: absolute; inset: 0; background: var(--glass-shine); pointer-events: none; }
+  .glass-card:active { transform: scale(0.96); background: var(--surface-hover); }
+
+  .ods-icon-big { font-size: 32px; display: block; margin-bottom: 12px; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.4)); }
+  .ods-number { font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+  .ods-name { font-size: 14px; font-weight: 500; line-height: 1.3; color: var(--text-primary); }
+
+  .glass-card.nine .ods-number { color: var(--orange); }
+  .glass-card.eleven .ods-number { color: var(--green); }
+
+  .unifier {
+    display: flex; align-items: center; gap: 16px;
+    padding: 20px;
+  }
+  
+  .unifier-icon {
+    width: 48px; height: 48px;
+    background: linear-gradient(135deg, rgba(10,132,255,0.2), rgba(191,90,242,0.2));
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; flex-shrink: 0;
+    box-shadow: inset 0 0 20px rgba(255,255,255,0.05);
+  }
+  
+  .unifier-text {
+    font-size: 14px; line-height: 1.5; color: var(--text-secondary);
+  }
+  .unifier-text strong { color: var(--text-primary); font-weight: 600; }
+
+  /* ── PILLAR SECTIONS ── */
+  .pillars {
+    padding: 0 20px 80px;
+    display: flex; flex-direction: column; gap: 24px;
+  }
+
+  .pillar {
+    background: var(--surface);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    position: relative;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s var(--ease-apple), transform 0.8s var(--ease-apple), box-shadow 0.4s;
+  }
+  
+  .pillar::after { content: ''; position: absolute; inset: 0; background: var(--glass-shine); pointer-events: none; border-radius: var(--radius-xl); }
+  .pillar.visible { opacity: 1; transform: translateY(0); }
+  
+  /* Pillar Theming */
+  .pillar.blue.active-pillar { box-shadow: 0 10px 40px rgba(10,132,255,0.15); border-color: rgba(10,132,255,0.3); }
+  .pillar.green.active-pillar { box-shadow: 0 10px 40px rgba(48,209,88,0.15); border-color: rgba(48,209,88,0.3); }
+  .pillar.orange.active-pillar { box-shadow: 0 10px 40px rgba(255,159,10,0.15); border-color: rgba(255,159,10,0.3); }
+
+  .pillar-header {
+    padding: 28px 24px;
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+    z-index: 2;
+    transition: background 0.2s;
+  }
+  .pillar-header:active { background: rgba(255,255,255,0.03); }
+
+  .pillar-toggle {
+    position: absolute;
+    top: 28px; right: 24px;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.4s var(--ease-apple), background 0.2s;
+  }
+  .pillar-toggle svg { width: 14px; height: 14px; fill: none; stroke: var(--text-secondary); stroke-width: 2; stroke-linecap: round; }
+  .pillar.active-pillar .pillar-toggle { transform: rotate(180deg); background: rgba(255,255,255,0.1); }
+  .pillar.active-pillar .pillar-toggle svg { stroke: var(--text-primary); }
+
+  .pillar-num {
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    margin-bottom: 16px; opacity: 0.7;
+  }
+  .pillar.blue .pillar-num  { color: var(--blue); }
+  .pillar.green .pillar-num { color: var(--green); }
+  .pillar.orange .pillar-num{ color: var(--orange); }
+
+  .pillar-title { font-size: 24px; font-weight: 700; line-height: 1.1; margin-bottom: 10px; letter-spacing: -0.02em; }
+  .pillar-desc { font-size: 14px; font-weight: 400; color: var(--text-secondary); line-height: 1.5; padding-right: 20px; }
+
+  /* Collapsible body */
+  .pillar-body-wrapper {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.5s var(--ease-apple);
+  }
+  
+  .pillar.active-pillar .pillar-body-wrapper {
+    grid-template-rows: 1fr;
+  }
+
+  .pillar-body {
+    overflow: hidden;
+    padding: 0 24px;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.4s ease 0.1s, transform 0.4s ease 0.1s;
+  }
+  
+  .pillar.active-pillar .pillar-body {
+    opacity: 1;
+    transform: translateY(0);
+    padding-bottom: 28px;
+  }
+
+  .feat {
+    display: flex; align-items: flex-start; gap: 16px;
+    padding: 16px;
+    margin-bottom: 12px;
+    background: rgba(0,0,0,0.2);
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(255,255,255,0.03);
+    transition: transform 0.2s, background 0.2s;
+  }
+  .feat:active { transform: scale(0.97); background: rgba(255,255,255,0.05); }
+
+  .feat-icon {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+  }
+  .pillar.blue .feat-icon   { background: rgba(10,132,255,0.15); box-shadow: inset 0 0 10px rgba(10,132,255,0.1); }
+  .pillar.green .feat-icon  { background: rgba(48,209,88,0.15); box-shadow: inset 0 0 10px rgba(48,209,88,0.1); }
+  .pillar.orange .feat-icon { background: rgba(255,159,10,0.15); box-shadow: inset 0 0 10px rgba(255,159,10,0.1); }
+
+  .feat-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; color: var(--text-primary); }
+  .feat-sub { font-size: 13px; color: var(--text-secondary); line-height: 1.4; }
+
+  /* Stat card */
+  .pillar-stat {
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: var(--radius-md);
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--glass-border);
+    display: flex; align-items: center; gap: 16px;
+  }
+
+  .stat-num { font-size: 36px; font-weight: 700; letter-spacing: -0.04em; line-height: 1; }
+  .pillar.blue .stat-num  { color: var(--blue); }
+  .pillar.green .stat-num { color: var(--green); }
+  .pillar.orange .stat-num{ color: var(--orange); }
+
+  .stat-text { font-size: 13px; color: var(--text-secondary); line-height: 1.4; }
+  .stat-source { font-size: 10px; color: rgba(255,255,255,0.3); margin-top: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  /* ── FOOTER ── */
+  .footer {
+    padding: 30px 24px max(40px, env(safe-area-inset-bottom));
+    text-align: center;
+    border-top: 1px solid var(--glass-border);
+  }
+  
+  .footer-text { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+  
+  @keyframes slideUpFade {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 </style>
 </head>
 <body>
 
+<div class="bg-blobs">
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+</div>
+
 <div class="progress-bar" id="progress"></div>
 
-<nav class="nav-dots" aria-label="Navegação por seções">
-  <div class="ndot active" onclick="scrollTo({top:0,behavior:'smooth'})"></div>
-  <div class="ndot" onclick="document.querySelector('.ods-intro').scrollIntoView({behavior:'smooth'})"></div>
-  <div class="ndot" onclick="document.querySelectorAll('.pillar')[0].scrollIntoView({behavior:'smooth', block: 'start'})"></div>
-  <div class="ndot" onclick="document.querySelectorAll('.pillar')[1].scrollIntoView({behavior:'smooth', block: 'start'})"></div>
-  <div class="ndot" onclick="document.querySelectorAll('.pillar')[2].scrollIntoView({behavior:'smooth', block: 'start'})"></div>
-</nav>
-
 <section class="hero">
-  <canvas id="particle-canvas"></canvas>
   <div class="hero-globe">
-    <div class="globe-pulse">
-      <div class="pulse-ring"></div>
-      <div class="pulse-ring"></div>
-      <div class="pulse-ring"></div>
-    </div>
-    <svg class="globe-svg" viewBox="0 0 320 320" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="sphereGrad" cx="40%" cy="35%" r="60%"><stop offset="0%" stop-color="#1A2A4A"/><stop offset="100%" stop-color="#05050A"/></radialGradient><radialGradient id="glowOuter" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#0A84FF" stop-opacity="0.15"/><stop offset="100%" stop-color="#0A84FF" stop-opacity="0"/></radialGradient><filter id="blur1"><feGaussianBlur stdDeviation="8"/></filter><filter id="blur2"><feGaussianBlur stdDeviation="2"/></filter><clipPath id="sphereClip"><circle cx="160" cy="160" r="120"/></clipPath></defs><circle cx="160" cy="160" r="155" fill="url(#glowOuter)"/><circle cx="160" cy="160" r="128" fill="none" stroke="#0A84FF" stroke-width="1" opacity="0.2"/><circle cx="160" cy="160" r="138" fill="none" stroke="#0A84FF" stroke-width="0.5" opacity="0.1"/><circle cx="160" cy="160" r="120" fill="url(#sphereGrad)"/><g clip-path="url(#sphereClip)" opacity="0.25"><ellipse cx="160" cy="130" rx="120" ry="30" fill="none" stroke="#0A84FF" stroke-width="0.8"/><ellipse cx="160" cy="160" rx="120" ry="12" fill="none" stroke="#0A84FF" stroke-width="0.8"/><ellipse cx="160" cy="190" rx="120" ry="30" fill="none" stroke="#0A84FF" stroke-width="0.8"/><line x1="40" y1="160" x2="280" y2="160" stroke="#0A84FF" stroke-width="0.8"/><ellipse cx="160" cy="160" rx="35" ry="120" fill="none" stroke="#0A84FF" stroke-width="0.8"/><ellipse cx="160" cy="160" rx="70" ry="120" fill="none" stroke="#0A84FF" stroke-width="0.8"/><ellipse cx="160" cy="160" rx="105" ry="120" fill="none" stroke="#0A84FF" stroke-width="0.8"/><line x1="160" y1="40" x2="160" y2="280" stroke="#0A84FF" stroke-width="0.8"/></g><g clip-path="url(#sphereClip)"><circle cx="130" cy="120" r="3" fill="#0A84FF" opacity="0.9" filter="url(#blur2)"/><circle cx="126" cy="116" r="1.5" fill="white" opacity="0.9"/><circle cx="195" cy="135" r="2.5" fill="#30D158" opacity="0.9" filter="url(#blur2)"/><circle cx="192" cy="132" r="1.2" fill="white" opacity="0.8"/><circle cx="155" cy="180" r="3.5" fill="#FF9F0A" opacity="0.9" filter="url(#blur2)"/><circle cx="152" cy="177" r="1.5" fill="white" opacity="0.9"/><circle cx="210" cy="165" r="2" fill="#BF5AF2" opacity="0.9"/><circle cx="100" cy="150" r="2.5" fill="#0A84FF" opacity="0.7"/><circle cx="175" cy="110" r="2" fill="#30D158" opacity="0.8"/><circle cx="220" cy="185" r="2" fill="#FF9F0A" opacity="0.7"/><circle cx="140" cy="200" r="2" fill="#0A84FF" opacity="0.6"/><circle cx="180" cy="200" r="1.5" fill="#30D158" opacity="0.6"/><line x1="126" y1="116" x2="192" y2="132" stroke="#0A84FF" stroke-width="0.6" opacity="0.4"/><line x1="192" y1="132" x2="152" y2="177" stroke="#30D158" stroke-width="0.6" opacity="0.4"/><line x1="126" y1="116" x2="152" y2="177" stroke="#BF5AF2" stroke-width="0.6" opacity="0.3"/><line x1="192" y1="132" x2="210" y2="165" stroke="#FF9F0A" stroke-width="0.6" opacity="0.4"/><line x1="152" y1="177" x2="210" y2="165" stroke="#FF9F0A" stroke-width="0.6" opacity="0.3"/><circle cx="152" cy="177" r="6" fill="none" stroke="#FF9F0A" stroke-width="1" opacity="0"><animate attributeName="r" values="3;10" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.6;0" dur="2s" repeatCount="indefinite"/></circle><circle cx="126" cy="116" r="6" fill="none" stroke="#0A84FF" stroke-width="1" opacity="0"><animate attributeName="r" values="3;10" dur="2.5s" begin="0.8s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.6;0" dur="2.5s" begin="0.8s" repeatCount="indefinite"/></circle></g><circle cx="160" cy="160" r="120" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1.5"/><ellipse cx="130" cy="95" rx="35" ry="20" fill="rgba(255,255,255,0.04)" transform="rotate(-20,130,95)"/><ellipse cx="160" cy="160" rx="150" ry="40" fill="none" stroke="rgba(10,132,255,0.2)" stroke-width="1" stroke-dasharray="4,6"/><circle cx="310" cy="160" r="4" fill="#0A84FF" opacity="0.8"><animateTransform attributeName="transform" type="rotate" from="0 160 160" to="360 160 160" dur="12s" repeatCount="indefinite"/></circle><circle cx="10" cy="160" r="2.5" fill="#30D158" opacity="0.6"><animateTransform attributeName="transform" type="rotate" from="180 160 160" to="540 160 160" dur="18s" repeatCount="indefinite"/></circle></svg>
+    <svg class="globe-svg" viewBox="0 0 320 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="160" cy="160" r="140" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+      <circle cx="160" cy="160" r="100" stroke="rgba(255,255,255,0.1)" stroke-width="0.5" stroke-dasharray="4 4"/>
+      <ellipse cx="160" cy="160" rx="140" ry="40" stroke="rgba(10,132,255,0.2)" stroke-width="1"/>
+      <ellipse cx="160" cy="160" rx="40" ry="140" stroke="rgba(191,90,242,0.2)" stroke-width="1"/>
+      <path d="M160 20 L160 300 M20 160 L300 160" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+      <circle cx="160" cy="120" r="3" fill="#0A84FF" filter="drop-shadow(0 0 8px #0A84FF)"/>
+      <circle cx="200" cy="160" r="3" fill="#30D158" filter="drop-shadow(0 0 8px #30D158)"/>
+      <circle cx="120" cy="160" r="3" fill="#BF5AF2" filter="drop-shadow(0 0 8px #BF5AF2)"/>
+    </svg>
   </div>
 
   <div class="hero-content">
@@ -249,146 +459,139 @@
       <div class="badge badge-9"><span class="badge-dot"></span>ODS 9</div>
       <div class="badge badge-11"><span class="badge-dot"></span>ODS 11</div>
     </div>
-    <h1 class="hero-title">Cidades<br><em>Inteligentes</em></h1>
-    <p class="hero-sub">Quando inovação urbana e sustentabilidade convergem num único ecossistema responsivo.</p>
+    <h1 class="hero-title">Cidades<br><span>Inteligentes</span></h1>
+    <p class="hero-sub">Inovação urbana e sustentabilidade convergindo em um sistema fluido e responsivo.</p>
     <div class="scroll-hint">
-      <div class="scroll-pill"><div class="scroll-dot"></div></div>
-      <span class="scroll-label">Deslize</span>
+      <div class="scroll-icon"><div class="scroll-dot"></div></div>
     </div>
   </div>
 </section>
 
 <section class="ods-intro">
-  <p class="section-label">A Intersecção</p>
+  <p class="section-label">A Convergência</p>
   <div class="ods-cards">
-    <div class="ods-card nine tilt-card">
+    <div class="glass-card nine">
       <span class="ods-icon-big">🏗️</span>
       <div class="ods-number">ODS 9</div>
-      <div class="ods-name">Infraestrutura e Inovação</div>
+      <div class="ods-name">Indústria e Infraestrutura</div>
     </div>
-    <div class="ods-card eleven tilt-card">
-      <span class="ods-icon-big">🌱</span>
+    <div class="glass-card eleven">
+      <span class="ods-icon-big">🌆</span>
       <div class="ods-number">ODS 11</div>
       <div class="ods-name">Cidades Sustentáveis</div>
     </div>
   </div>
-  <div class="unifier">
+  <div class="glass-card unifier">
     <div class="unifier-icon">🌐</div>
     <div class="unifier-text">
-      A tecnologia da <strong>ODS 9</strong> não é um fim, mas a ferramenta essencial para viabilizar as metas ecológicas e sociais da <strong>ODS 11</strong>.
+      A tecnologia da ODS 9 atua como o sistema nervoso que permite a gestão sustentável exigida pela ODS 11.
     </div>
   </div>
 </section>
 
 <div class="pillars">
 
-  <article class="pillar blue" data-index="0">
+  <article class="pillar blue active-pillar" data-index="0">
     <div class="pillar-header" onclick="togglePillar(this)">
-      <div class="pillar-glow"></div>
-      <div class="pillar-toggle">+</div>
-      <div class="pillar-num">Pilar 01</div>
-      <div class="pillar-icon-wrap">
-        <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M14 6C9.58 6 5.62 7.87 2.8 10.87L5.07 13.14C7.28 10.76 10.48 9.25 14 9.25C17.52 9.25 20.72 10.76 22.93 13.14L25.2 10.87C22.38 7.87 18.42 6 14 6Z" fill="#0A84FF"/><path d="M14 10.5C11.3 10.5 8.86 11.6 7.1 13.4L9.37 15.67C10.55 14.41 12.18 13.6 14 13.6C15.82 13.6 17.45 14.41 18.63 15.67L20.9 13.4C19.14 11.6 16.7 10.5 14 10.5Z" fill="#0A84FF" opacity="0.7"/><circle cx="14" cy="19.5" r="3" fill="#0A84FF"/></svg>
+      <div class="pillar-toggle">
+        <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
       </div>
+      <div class="pillar-num">Pilar 01</div>
       <h2 class="pillar-title">Conectividade<br>e Digitalização</h2>
-      <p class="pillar-desc">O "sistema nervoso" da cidade. O grande desafio atual é superar infraestruturas legadas e integrar dados isolados.</p>
+      <p class="pillar-desc">Redes digitais como base de toda a inteligência urbana.</p>
     </div>
     <div class="pillar-body-wrapper">
       <div class="pillar-body">
         <div class="feat">
           <div class="feat-icon">📡</div>
           <div class="feat-content">
-            <div class="feat-title">IoT e Coleta em Tempo Real</div>
-            <div class="feat-sub">Sensores monitorando trânsito, qualidade do ar e rede elétrica ininterruptamente.</div>
+            <div class="feat-title">IoT e Redes 5G</div>
+            <div class="feat-sub">Sensores monitoram trânsito e qualidade do ar em tempo real.</div>
           </div>
         </div>
         <div class="feat">
-          <div class="feat-icon">⛓️</div>
+          <div class="feat-icon">🧠</div>
           <div class="feat-content">
-            <div class="feat-title">Desafio: Silos de Dados</div>
-            <div class="feat-sub">Para a cidade ser inteligente, sistemas de saúde, trânsito e segurança precisam de uma API unificada.</div>
+            <div class="feat-title">Data Centers Urbanos</div>
+            <div class="feat-sub">Processamento de dados para decisões públicas instantâneas.</div>
           </div>
         </div>
         <div class="pillar-stat">
-          <div class="stat-num" data-target="68" data-suffix="%">68%</div>
+          <div class="stat-num" data-target="68" data-suffix="%">0%</div>
           <div>
-            <div class="stat-text">da população global será urbana em 2050, tornando a digitalização uma questão de sobrevivência.</div>
-            <div class="stat-source">ONU-Habitat</div>
+            <div class="stat-text">da população global viverá em cidades até 2050.</div>
+            <div class="stat-source">ONU-Habitat, 2022</div>
           </div>
         </div>
       </div>
     </div>
   </article>
 
-  <article class="pillar green collapsed" data-index="1">
+  <article class="pillar green" data-index="1">
     <div class="pillar-header" onclick="togglePillar(this)">
-      <div class="pillar-glow"></div>
-      <div class="pillar-toggle">+</div>
-      <div class="pillar-num">Pilar 02</div>
-      <div class="pillar-icon-wrap">
-        <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M14 3C14 3 6 9 6 16C6 20.42 9.58 24 14 24C18.42 24 22 20.42 22 16C22 9 14 3 14 3Z" fill="#30D158" opacity="0.3"/><path d="M14 8C14 8 9 12.5 9 16.5C9 19.26 11.24 21.5 14 21.5C16.76 21.5 19 19.26 19 16.5C19 12.5 14 8 14 8Z" fill="#30D158" opacity="0.6"/><circle cx="14" cy="16.5" r="3.5" fill="#30D158"/></svg>
+      <div class="pillar-toggle">
+        <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
       </div>
+      <div class="pillar-num">Pilar 02</div>
       <h2 class="pillar-title">Sustentabilidade<br>e Gestão</h2>
-      <p class="pillar-desc">A transição da gestão "reativa" (consertar o que quebrou) para a "preditiva" (evitar o desperdício ambiental).</p>
+      <p class="pillar-desc">Otimização de recursos e resiliência climática por meio de dados.</p>
     </div>
     <div class="pillar-body-wrapper">
       <div class="pillar-body">
         <div class="feat">
           <div class="feat-icon">⚡</div>
           <div class="feat-content">
-            <div class="feat-title">Smart Grids (Energia)</div>
-            <div class="feat-sub">Redes que distribuem energia dinamicamente, evitando apagões e desperdício de fontes limpas.</div>
+            <div class="feat-title">Smart Grids (Redes Elétricas)</div>
+            <div class="feat-sub">Distribuição adaptável e integração de energia limpa (solar/eólica).</div>
           </div>
         </div>
         <div class="feat">
-          <div class="feat-icon">♻️</div>
+          <div class="feat-icon">💧</div>
           <div class="feat-content">
-            <div class="feat-title">Lixeiras e Rotas Inteligentes</div>
-            <div class="feat-sub">Sensores avisam quando estão cheias. Caminhões só rodam o necessário, reduzindo CO2.</div>
+            <div class="feat-title">Gestão Inteligente de Resíduos</div>
+            <div class="feat-sub">Lixeiras conectadas otimizam rotas de caminhões, poupando combustível.</div>
           </div>
         </div>
         <div class="pillar-stat">
-          <div class="stat-num" data-target="30" data-suffix="%">30%</div>
+          <div class="stat-num" data-target="30" data-suffix="%">0%</div>
           <div>
-            <div class="stat-text">é a redução média de consumo energético em cidades que implementaram gestão preditiva.</div>
-            <div class="stat-source">Agência Internacional de Energia (IEA)</div>
+            <div class="stat-text">de redução de emissões globais projetadas se cidades adotarem sistemas inteligentes focados em mobilidade e construções.</div>
+            <div class="stat-source">ONU Programa Ambiental, 2023</div>
           </div>
         </div>
       </div>
     </div>
   </article>
 
-  <article class="pillar orange collapsed" data-index="2">
+  <article class="pillar orange" data-index="2">
     <div class="pillar-header" onclick="togglePillar(this)">
-      <div class="pillar-glow"></div>
-      <div class="pillar-toggle">+</div>
-      <div class="pillar-num">Pilar 03</div>
-      <div class="pillar-icon-wrap">
-        <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M14 3L5 7V15C5 19.97 8.9 24.6 14 26C19.1 24.6 23 19.97 23 15V7L14 3Z" fill="#FF9F0A" opacity="0.25"/><path d="M14 6L8 9V15C8 18.58 10.63 21.89 14 23C17.37 21.89 20 18.58 20 15V9L14 6Z" fill="#FF9F0A" opacity="0.5"/><path d="M12 15L10.5 13.5L9.5 14.5L12 17L18.5 10.5L17.5 9.5L12 15Z" fill="#FF9F0A"/></svg>
+      <div class="pillar-toggle">
+        <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
       </div>
+      <div class="pillar-num">Pilar 03</div>
       <h2 class="pillar-title">Segurança<br>Urbana</h2>
-      <p class="pillar-desc">Prevenção humana e ambiental, balanceando monitoramento inteligente com os direitos à privacidade.</p>
+      <p class="pillar-desc">Prevenção ativa contra desastres ambientais e ciberataques.</p>
     </div>
     <div class="pillar-body-wrapper">
       <div class="pillar-body">
         <div class="feat">
           <div class="feat-icon">🌊</div>
           <div class="feat-content">
-            <div class="feat-title">Alerta de Desastres Naturais</div>
-            <div class="feat-sub">Sensores hidrológicos comunicam a defesa civil sobre risco de enchentes instantaneamente.</div>
+            <div class="feat-title">Prevenção Climática Preditiva</div>
+            <div class="feat-sub">Sensores hidrológicos alertam áreas de risco sobre enchentes.</div>
           </div>
         </div>
         <div class="feat">
-          <div class="feat-icon">👁️</div>
+          <div class="feat-icon">🔐</div>
           <div class="feat-content">
-            <div class="feat-title">Dilema: Ética e Privacidade</div>
-            <div class="feat-sub">Como garantir a segurança pública com câmeras (IA) sem criar uma vigilância em massa invasiva?</div>
+            <div class="feat-title">Cibersegurança Integrada</div>
+            <div class="feat-sub">Proteção rigorosa de infraestruturas como hospitais e redes elétricas.</div>
           </div>
         </div>
         <div class="pillar-stat">
-          <div class="stat-num" data-target="40" data-suffix="%">40%</div>
+          <div class="stat-num" data-target="40" data-suffix="%">0%</div>
           <div>
-            <div class="stat-text">de redução em criminalidade urbana com uso de iluminação LED e resposta preditiva.</div>
+            <div class="stat-text">de potencial redução de fatalidades urbanas com resposta rápida gerida por IA.</div>
             <div class="stat-source">McKinsey Global Institute</div>
           </div>
         </div>
@@ -398,173 +601,74 @@
 
 </div>
 
-<div class="footer" id="conclusion">
-  <p class="footer-text">
-    "A tecnologia para Cidades Inteligentes já existe. O desafio agora é torná-las financeiramente viáveis, integradas e socialmente justas."
-  </p>
-</div>
-
-<a href="#" class="kahoot-fab" id="kahootBtn" onclick="alert('Abra a sala do Kahoot no projetor principal!'); return false;">
-  <span style="font-size: 20px;">🎲</span> Quiz
-</a>
+<footer class="footer">
+  <p class="footer-text">Desenvolvido para apresentação ODS 9 & 11.<br>Pensado para o futuro.</p>
+</footer>
 
 <script>
-/* ─── PROGRESS BAR ─── */
-const progressBar = document.getElementById('progress');
+/* ── Progress Bar ── */
 window.addEventListener('scroll', () => {
-  const max = document.documentElement.scrollHeight - window.innerHeight;
-  progressBar.style.width = (window.scrollY / max * 100) + '%';
+  const scrollPx = document.documentElement.scrollTop;
+  const winHeightPx = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+  const scrolled = `${scrollPx / winHeightPx * 100}%`;
+  document.getElementById('progress').style.width = scrolled;
 }, { passive: true });
 
-/* ─── PARTICLE CANVAS ─── */
-(function() {
-  const canvas = document.getElementById('particle-canvas');
-  const ctx = canvas.getContext('2d');
-  let W, H, particles = [];
-
-  function resize() {
-    W = canvas.width  = window.innerWidth;
-    H = canvas.height = window.innerHeight;
-  }
-  resize(); window.addEventListener('resize', resize);
-
-  const COLORS = ['rgba(10,132,255,', 'rgba(48,209,88,', 'rgba(191,90,242,', 'rgba(255,159,10,'];
-  for (let i = 0; i < 28; i++) {
-    particles.push({
-      x: Math.random() * W, y: Math.random() * H,
-      r: Math.random() * 1.5 + 0.4,
-      vx: (Math.random() - 0.5) * 0.3, vy: (Math.random() - 0.5) * 0.3,
-      color: COLORS[Math.floor(Math.random() * COLORS.length)],
-      a: Math.random() * 0.5 + 0.2
-    });
-  }
-
-  function draw() {
-    ctx.clearRect(0, 0, W, H);
-    particles.forEach(p => {
-      p.x += p.vx; p.y += p.vy;
-      if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
-      if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
-      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = p.color + p.a + ')'; ctx.fill();
-    });
-    requestAnimationFrame(draw);
-  }
-  draw();
-})();
-
-/* ─── PILLAR TOGGLE (ACORDEÃO INTELIGENTE) ─── */
+/* ── Pillar Accordion Logic (Apple Style) ── */
 function togglePillar(header) {
-  const currentPillar = header.closest('.pillar');
+  const pillar = header.closest('.pillar');
   
-  // Fecha os outros pilares para economizar espaço de tela no mobile
+  // Opcional: Descomente as próximas 4 linhas se quiser que apenas 1 pilar fique aberto por vez
+  /*
   document.querySelectorAll('.pillar').forEach(p => {
-    if(p !== currentPillar) {
-      p.classList.add('collapsed');
-    }
+    if (p !== pillar) p.classList.remove('active-pillar');
   });
+  */
   
-  // Abre/Fecha o atual
-  currentPillar.classList.toggle('collapsed');
-  
-  // Rola suavemente para o pilar aberto caso saia da tela
-  if(!currentPillar.classList.contains('collapsed')) {
-      setTimeout(() => {
-          currentPillar.scrollIntoView({behavior: 'smooth', block: 'start'});
-      }, 300);
-  }
+  pillar.classList.toggle('active-pillar');
 }
 
-/* ─── OBSERVER (Animações de Scroll e Kahoot Button) ─── */
-const kahootBtn = document.getElementById('kahootBtn');
-const footer = document.querySelector('.footer');
+/* ── Intersection Observer for Entrance Animations ── */
+const observerOptions = {
+  root: null,
+  rootMargin: '0px',
+  threshold: 0.15
+};
 
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(e => {
-    // Aparecimento dos pilares e contadores
-    if (e.isIntersecting && e.target.classList.contains('pillar')) {
-      e.target.classList.add('visible');
-      const statNum = e.target.querySelector('.stat-num');
-      if (statNum && !statNum.dataset.counted && !e.target.classList.contains('collapsed')) {
-        animateCounter(statNum);
-        statNum.dataset.counted = 'true';
-      }
-    }
-    // Aparecimento do Botão Kahoot no Footer
-    if (e.target === footer) {
-        if(e.isIntersecting) {
-            kahootBtn.classList.add('visible');
-        } else {
-            kahootBtn.classList.remove('visible');
-        }
-    }
-  });
-}, { threshold: 0.1 });
-
-document.querySelectorAll('.pillar').forEach(p => observer.observe(p));
-observer.observe(footer);
-
-/* Contadores rodam ao abrir o accordion tbm */
-document.querySelectorAll('.pillar-header').forEach(header => {
-    header.addEventListener('click', () => {
-        const pillar = header.closest('.pillar');
-        const statNum = pillar.querySelector('.stat-num');
-        if (statNum && !statNum.dataset.counted) {
-            setTimeout(() => animateCounter(statNum), 300);
-            statNum.dataset.counted = 'true';
-        }
-    });
-});
-
-/* ─── COUNTER ANIMATION ─── */
-function animateCounter(el) {
-  const target = parseInt(el.dataset.target);
-  const suffix = el.dataset.suffix || '';
-  const duration = 1400; const start = performance.now();
-  function step(now) {
-    const progress = Math.min((now - start) / duration, 1);
-    const eased = 1 - Math.pow(1 - progress, 3);
-    el.textContent = Math.round(eased * target) + suffix;
-    if (progress < 1) requestAnimationFrame(step);
-  }
-  requestAnimationFrame(step);
-}
-
-/* ─── NAV DOTS UPDATE ─── */
-const ndots = document.querySelectorAll('.ndot');
-const sections = [ document.querySelector('.hero'), document.querySelector('.ods-intro'), ...document.querySelectorAll('.pillar') ];
-const scrollObs = new IntersectionObserver((entries) => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      const idx = sections.indexOf(e.target);
-      if (idx >= 0) {
-        ndots.forEach(d => d.classList.remove('active'));
-        if (ndots[idx]) ndots[idx].classList.add('active');
+const observer = new IntersectionObserver((entries, observer) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      
+      // Trigger stat counter if available
+      const statNum = entry.target.querySelector('.stat-num');
+      if (statNum && !statNum.classList.contains('counted')) {
+        animateValue(statNum, 0, parseInt(statNum.getAttribute('data-target')), 1500, statNum.getAttribute('data-suffix'));
+        statNum.classList.add('counted');
       }
     }
   });
-}, { threshold: 0.3, rootMargin: '0px 0px -40% 0px' });
-sections.forEach(s => { if (s) scrollObs.observe(s); });
+}, observerOptions);
 
-/* ─── 3D TILT EFFECT NAS ODS CARDS (Mobile Friendly) ─── */
-document.querySelectorAll('.tilt-card').forEach(card => {
-    card.addEventListener('touchmove', (e) => {
-        const touch = e.touches[0];
-        const rect = card.getBoundingClientRect();
-        const x = touch.clientX - rect.left; 
-        const y = touch.clientY - rect.top;
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2;
-        const rotateX = ((y - centerY) / centerY) * -10; // Max 10deg
-        const rotateY = ((x - centerX) / centerX) * 10;
-        
-        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
-    }, {passive: true});
-
-    card.addEventListener('touchend', () => {
-        card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
-    }, {passive: true});
+document.querySelectorAll('.pillar').forEach(p => {
+  observer.observe(p);
 });
+
+/* ── Counter Animation ── */
+function animateValue(obj, start, end, duration, suffix) {
+  let startTimestamp = null;
+  const step = (timestamp) => {
+    if (!startTimestamp) startTimestamp = timestamp;
+    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+    // easeOutExpo
+    const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+    obj.innerHTML = Math.floor(easeProgress * (end - start) + start) + suffix;
+    if (progress < 1) {
+      window.requestAnimationFrame(step);
+    }
+  };
+  window.requestAnimationFrame(step);
+}
 </script>
 </body>
 </html>
