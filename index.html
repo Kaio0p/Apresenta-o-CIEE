@@ -2,503 +2,603 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Cidades Inteligentes · ODS 9 + 11</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg-base: #000000;
-    --surface: rgba(28, 28, 30, 0.45);
-    --surface-hover: rgba(44, 44, 46, 0.55);
-    --glass-border: rgba(255, 255, 255, 0.08);
-    --glass-shine: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
-    
-    --text-primary: #F5F5F7;
-    --text-secondary: #86868B;
-    
+    --bg: #05050A;
+    --surface: #0F0F18;
+    --surface2: #16162A;
+    --border: rgba(255,255,255,0.09);
+    --text: #F2F2F7;
+    --text-secondary: rgba(242,242,247,0.7); /* Melhorada a legibilidade para telas mobile */
     --blue: #0A84FF;
+    --blue-glow: rgba(10,132,255,0.25);
     --green: #30D158;
+    --green-glow: rgba(48,209,88,0.25);
     --orange: #FF9F0A;
+    --orange-glow: rgba(255,159,10,0.25);
     --purple: #BF5AF2;
-    
-    --radius-xl: 32px;
-    --radius-lg: 24px;
-    --radius-md: 16px;
-    
-    --ease-apple: cubic-bezier(0.25, 1, 0.5, 1);
+    --red: #FF453A; /* Nova cor para seção de desafios */
+    --red-glow: rgba(255,69,58,0.25);
+    --radius: 24px;
+    --radius-sm: 16px;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html { scroll-behavior: smooth; }
 
   body {
-    background: var(--bg-base);
-    color: var(--text-primary);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Sora', -apple-system, sans-serif;
     overflow-x: hidden;
+    max-width: 100vw;
     min-height: 100dvh;
-    letter-spacing: -0.01em;
   }
 
-  /* ── BACKGROUND AMORPHOUS BLOBS (Estética Liquid) ── */
-  .bg-blobs {
+  /* ── NOISE OVERLAY ── */
+  body::before {
+    content: '';
     position: fixed;
     inset: 0;
-    z-index: -1;
-    overflow: hidden;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
     pointer-events: none;
-    background: var(--bg-base);
-  }
-  .blob {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(80px);
-    opacity: 0.4;
-    animation: blobFloat 20s ease-in-out infinite alternate;
-  }
-  .blob.b1 { width: 400px; height: 400px; background: rgba(10, 132, 255, 0.2); top: -100px; left: -100px; }
-  .blob.b2 { width: 350px; height: 350px; background: rgba(191, 90, 242, 0.2); bottom: -50px; right: -100px; animation-delay: -5s; }
-  .blob.b3 { width: 300px; height: 300px; background: rgba(48, 209, 88, 0.15); top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: -10s; }
-
-  @keyframes blobFloat {
-    0% { transform: translate(0, 0) scale(1); }
-    33% { transform: translate(30px, -50px) scale(1.1); }
-    66% { transform: translate(-20px, 20px) scale(0.9); }
-    100% { transform: translate(0, 0) scale(1); }
+    z-index: 0;
+    opacity: 0.6;
   }
 
   /* ── PROGRESS BAR ── */
   .progress-bar {
     position: fixed;
     top: 0; left: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--blue), var(--purple), var(--green));
+    height: 3px; /* Levemente mais espessa para visibilidade */
+    background: linear-gradient(90deg, var(--blue), var(--purple), var(--green), var(--orange));
     width: 0%;
     z-index: 200;
-    transition: width 0.1s linear;
-    box-shadow: 0 0 10px rgba(10,132,255,0.4);
+    transition: width 0.15s ease-out;
+    border-radius: 0 3px 3px 0;
+    box-shadow: 0 0 10px rgba(10,132,255,0.6);
   }
 
-  /* ── HERO SECTION ── */
+  /* ── HERO ── */
   .hero {
     position: relative;
     min-height: 100dvh;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    padding: 0 24px max(60px, env(safe-area-inset-bottom));
+    padding: 0 0 max(40px, env(safe-area-inset-bottom));
+    overflow: hidden;
+  }
+
+  #particle-canvas {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.5;
   }
 
   .hero-globe {
     position: absolute;
-    top: 5%; left: 0; right: 0;
-    height: 55%;
+    top: 0; left: 0; right: 0;
+    height: 65%;
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1;
+    z-index: 2;
+  }
+
+  /* Globo intacto conforme solicitado */
+  .globe-svg {
+    width: min(320px, 85vw);
+    height: min(320px, 85vw);
+    animation: float 6s ease-in-out infinite;
+    filter: drop-shadow(0 0 40px rgba(10,132,255,0.2));
+  }
+
+  @keyframes float {
+    0%,100% { transform: translateY(0px) rotate(0deg); }
+    33%      { transform: translateY(-10px) rotate(0.5deg); }
+    66%      { transform: translateY(-6px) rotate(-0.5deg); }
+  }
+
+  .globe-pulse {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: min(320px, 85vw);
+    height: min(320px, 85vw);
+    transform: translate(-50%, -50%);
     pointer-events: none;
   }
-
-  .globe-svg {
-    width: min(340px, 90vw);
-    height: min(340px, 90vw);
-    animation: floatGlobe 8s ease-in-out infinite;
-    filter: drop-shadow(0 0 50px rgba(10,132,255,0.15));
+  .pulse-ring {
+    position: absolute;
+    inset: -20px;
+    border-radius: 50%;
+    border: 1px solid rgba(10,132,255,0.15);
+    animation: pulseRing 3s ease-out infinite;
   }
-
-  @keyframes floatGlobe {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-15px); }
+  .pulse-ring:nth-child(2) { inset: -40px; animation-delay: 1s; border-color: rgba(10,132,255,0.08); }
+  .pulse-ring:nth-child(3) { inset: -60px; animation-delay: 2s; border-color: rgba(10,132,255,0.04); }
+  @keyframes pulseRing {
+    0%   { opacity: 1; transform: scale(0.95); }
+    100% { opacity: 0; transform: scale(1.05); }
   }
 
   .hero-content {
     position: relative;
-    z-index: 2;
+    z-index: 3;
+    padding: 0 24px;
   }
 
   .ods-badges {
     display: flex;
-    gap: 8px;
-    margin-bottom: 16px;
+    gap: 10px;
+    margin-bottom: 20px;
     flex-wrap: wrap;
-    animation: slideUpFade 1s var(--ease-apple) forwards;
+    animation: slideUp 0.8s cubic-bezier(0.16,1,0.3,1) both 0.2s;
   }
 
   .badge {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 600;
-    background: var(--surface);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid var(--glass-border);
-    position: relative;
-    overflow: hidden;
+    display: flex; align-items: center; gap: 7px;
+    padding: 7px 14px 7px 10px;
+    border-radius: 100px;
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.02em;
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border: 1px solid; position: relative; overflow: hidden;
   }
-  .badge::before { content: ''; position: absolute; inset: 0; background: var(--glass-shine); pointer-events: none; }
-  .badge-9  { color: var(--orange); }
-  .badge-11 { color: var(--green); }
-  .badge-dot { width: 6px; height: 6px; border-radius: 50%; }
-  .badge-9 .badge-dot  { background: var(--orange); box-shadow: 0 0 8px var(--orange); }
-  .badge-11 .badge-dot { background: var(--green);  box-shadow: 0 0 8px var(--green); }
+  .badge-9  { background: rgba(255,159,10,0.12); border-color: rgba(255,159,10,0.3); color: var(--orange); }
+  .badge-11 { background: rgba(48,209,88,0.12); border-color: rgba(48,209,88,0.3); color: var(--green); }
+  .badge-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .badge-9 .badge-dot  { background: var(--orange); box-shadow: 0 0 6px var(--orange); animation: dotPulse 2s ease-in-out infinite; }
+  .badge-11 .badge-dot { background: var(--green);  box-shadow: 0 0 6px var(--green);  animation: dotPulse 2s ease-in-out infinite 0.5s; }
+  
+  @keyframes dotPulse {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.5; transform: scale(0.7); }
+  }
 
   .hero-title {
-    font-size: clamp(40px, 11vw, 56px);
-    font-weight: 700;
-    line-height: 1.05;
-    letter-spacing: -0.04em;
-    margin-bottom: 16px;
-    animation: slideUpFade 1s var(--ease-apple) forwards 0.1s;
-    opacity: 0;
+    font-size: clamp(36px, 10vw, 48px);
+    font-weight: 800; line-height: 1.05;
+    letter-spacing: -0.03em; margin-bottom: 14px;
+    animation: slideUp 0.8s cubic-bezier(0.16,1,0.3,1) both 0.35s;
   }
-  
-  .hero-title span {
-    display: block;
-    background: linear-gradient(135deg, #FFFFFF 0%, #A1A1A6 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  
   .hero-title em {
     font-style: normal;
-    background: linear-gradient(135deg, var(--blue) 0%, var(--purple) 50%, var(--green) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    background: linear-gradient(135deg, var(--blue) 0%, var(--purple) 60%, #FF6B9D 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; background-size: 200%;
+    animation: gradientShift 4s ease-in-out infinite alternate;
+  }
+  
+  @keyframes gradientShift {
+    0%   { background-position: 0% 50%; }
+    100% { background-position: 100% 50%; }
   }
 
   .hero-sub {
-    font-size: 15px;
-    font-weight: 400;
-    color: var(--text-secondary);
-    line-height: 1.5;
-    max-width: 90%;
-    margin-bottom: 40px;
-    animation: slideUpFade 1s var(--ease-apple) forwards 0.2s;
-    opacity: 0;
+    font-size: 15px; font-weight: 300;
+    color: var(--text-secondary); line-height: 1.6;
+    max-width: 340px; margin-bottom: 36px;
+    animation: slideUp 0.8s cubic-bezier(0.16,1,0.3,1) both 0.5s;
   }
 
   .scroll-hint {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    animation: slideUpFade 1s var(--ease-apple) forwards 0.4s;
-    opacity: 0;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    animation: slideUp 0.8s cubic-bezier(0.16,1,0.3,1) both 0.7s;
   }
-  
-  .scroll-icon {
-    width: 24px; height: 40px;
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    display: flex; justify-content: center;
-    padding-top: 6px;
-    background: rgba(255,255,255,0.02);
-    backdrop-filter: blur(10px);
+  .scroll-pill {
+    width: 32px; height: 52px;
+    border: 2px solid rgba(255,255,255,0.15); border-radius: 100px;
+    display: flex; align-items: flex-start; justify-content: center;
+    padding-top: 8px; position: relative; overflow: hidden;
   }
-  
+  .scroll-pill::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(10,132,255,0.05), transparent);
+  }
   .scroll-dot {
-    width: 4px; height: 6px;
-    background: var(--text-secondary);
-    border-radius: 4px;
-    animation: scrollBounce 2s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+    width: 4px; height: 8px; background: rgba(255,255,255,0.5); border-radius: 100px;
+    animation: scrollDot 2s ease-in-out infinite;
   }
-  
-  @keyframes scrollBounce {
-    0%, 100% { transform: translateY(0); opacity: 0.5; }
-    50% { transform: translateY(12px); opacity: 1; }
+  @keyframes scrollDot {
+    0%   { transform: translateY(0); opacity: 1; }
+    80%  { transform: translateY(16px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 0; }
+  }
+  .scroll-label { font-size: 11px; color: var(--text-secondary); letter-spacing: 0.08em; text-transform: uppercase; }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
 
-  /* ── ODS INTRO (GLASS CARDS) ── */
-  .ods-intro {
-    padding: 20px 24px 60px;
-  }
+  /* ── ODS INTRO ── */
+  .ods-intro { padding: 0 20px 40px; position: relative; }
 
   .section-label {
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    color: var(--text-secondary);
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--text-secondary);
+    margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
   }
-  .section-label::before, .section-label::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--glass-border), transparent);
+  .section-label::before { content: ''; width: 20px; height: 1px; background: var(--text-secondary); }
+
+  .ods-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+
+  .ods-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 20px 18px;
+    position: relative; overflow: hidden;
+    transition: transform 0.3s cubic-bezier(0.16,1,0.3,1), box-shadow 0.3s ease;
   }
-
-  .ods-cards {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-bottom: 16px;
-  }
-
-  .glass-card {
-    background: var(--surface);
-    backdrop-filter: blur(30px);
-    -webkit-backdrop-filter: blur(30px);
-    border: 1px solid var(--glass-border);
-    border-radius: var(--radius-lg);
-    padding: 24px 20px;
-    position: relative;
-    overflow: hidden;
-    transition: transform 0.2s var(--ease-apple), background 0.2s;
-  }
-  .glass-card::before { content: ''; position: absolute; inset: 0; background: var(--glass-shine); pointer-events: none; }
-  .glass-card:active { transform: scale(0.96); background: var(--surface-hover); }
-
-  .ods-icon-big { font-size: 32px; display: block; margin-bottom: 12px; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.4)); }
-  .ods-number { font-size: 12px; font-weight: 700; margin-bottom: 4px; }
-  .ods-name { font-size: 14px; font-weight: 500; line-height: 1.3; color: var(--text-primary); }
-
-  .glass-card.nine .ods-number { color: var(--orange); }
-  .glass-card.eleven .ods-number { color: var(--green); }
+  .ods-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+  .ods-card.nine::before  { background: linear-gradient(90deg, var(--orange), transparent); }
+  .ods-card.eleven::before { background: linear-gradient(90deg, var(--green), transparent); }
+  
+  .ods-number { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; margin-bottom: 6px; opacity: 0.8; }
+  .ods-card.nine .ods-number  { color: var(--orange); }
+  .ods-card.eleven .ods-number { color: var(--green); }
+  .ods-name { font-size: 13px; font-weight: 600; line-height: 1.35; color: var(--text); }
+  .ods-icon-big { font-size: 28px; margin-bottom: 10px; display: block; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5)); }
 
   .unifier {
-    display: flex; align-items: center; gap: 16px;
-    padding: 20px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 18px 20px;
+    display: flex; align-items: center; gap: 14px;
+    position: relative; overflow: hidden;
   }
-  
+  .unifier::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(10,132,255,0.04), rgba(191,90,242,0.04)); pointer-events: none;
+  }
   .unifier-icon {
-    width: 48px; height: 48px;
-    background: linear-gradient(135deg, rgba(10,132,255,0.2), rgba(191,90,242,0.2));
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 16px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 24px; flex-shrink: 0;
-    box-shadow: inset 0 0 20px rgba(255,255,255,0.05);
+    width: 44px; height: 44px; background: linear-gradient(135deg, var(--blue), var(--purple));
+    border-radius: 14px; display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0; box-shadow: 0 4px 16px rgba(10,132,255,0.3);
+    animation: iconFloat 4s ease-in-out infinite;
   }
-  
-  .unifier-text {
-    font-size: 14px; line-height: 1.5; color: var(--text-secondary);
+  @keyframes iconFloat {
+    0%,100% { transform: translateY(0); }
+    50%      { transform: translateY(-3px); }
   }
-  .unifier-text strong { color: var(--text-primary); font-weight: 600; }
+  .unifier-text { font-size: 13px; line-height: 1.5; color: var(--text-secondary); }
+  .unifier-text strong { color: var(--text); font-weight: 600; }
 
   /* ── PILLAR SECTIONS ── */
-  .pillars {
-    padding: 0 20px 80px;
-    display: flex; flex-direction: column; gap: 24px;
-  }
+  .pillars { padding: 0 20px 40px; display: flex; flex-direction: column; gap: 20px; }
 
   .pillar {
+    border-radius: var(--radius); overflow: hidden; position: relative;
+    opacity: 0; transform: translateY(30px);
+    transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1);
     background: var(--surface);
-    backdrop-filter: blur(40px);
-    -webkit-backdrop-filter: blur(40px);
-    border: 1px solid var(--glass-border);
-    border-radius: var(--radius-xl);
-    overflow: hidden;
-    position: relative;
-    opacity: 0;
-    transform: translateY(30px);
-    transition: opacity 0.8s var(--ease-apple), transform 0.8s var(--ease-apple), box-shadow 0.4s;
+    border: 1px solid transparent;
   }
-  
-  .pillar::after { content: ''; position: absolute; inset: 0; background: var(--glass-shine); pointer-events: none; border-radius: var(--radius-xl); }
   .pillar.visible { opacity: 1; transform: translateY(0); }
-  
-  /* Pillar Theming */
-  .pillar.blue.active-pillar { box-shadow: 0 10px 40px rgba(10,132,255,0.15); border-color: rgba(10,132,255,0.3); }
-  .pillar.green.active-pillar { box-shadow: 0 10px 40px rgba(48,209,88,0.15); border-color: rgba(48,209,88,0.3); }
-  .pillar.orange.active-pillar { box-shadow: 0 10px 40px rgba(255,159,10,0.15); border-color: rgba(255,159,10,0.3); }
+  .pillar.blue.visible { border-color: rgba(10,132,255,0.1); }
+  .pillar.green.visible { border-color: rgba(48,209,88,0.1); }
+  .pillar.orange.visible { border-color: rgba(255,159,10,0.1); }
 
   .pillar-header {
-    padding: 28px 24px;
-    position: relative;
-    cursor: pointer;
-    user-select: none;
-    z-index: 2;
-    transition: background 0.2s;
+    padding: 28px 24px 24px; position: relative; cursor: pointer; user-select: none;
+    -webkit-tap-highlight-color: transparent;
   }
-  .pillar-header:active { background: rgba(255,255,255,0.03); }
+  .pillar.blue .pillar-header  { background: linear-gradient(145deg, #0A1628 0%, #0A0A18 100%); }
+  .pillar.green .pillar-header { background: linear-gradient(145deg, #0A1A10 0%, #0A0A18 100%); }
+  .pillar.orange .pillar-header{ background: linear-gradient(145deg, #1A1005 0%, #0A0A18 100%); }
 
   .pillar-toggle {
-    position: absolute;
-    top: 28px; right: 24px;
-    width: 32px; height: 32px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.05);
+    position: absolute; top: 20px; right: 20px;
+    width: 32px; height: 32px; border-radius: 50%;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
     display: flex; align-items: center; justify-content: center;
-    transition: transform 0.4s var(--ease-apple), background 0.2s;
+    transition: transform 0.4s cubic-bezier(0.16,1,0.3,1), background 0.2s;
+    font-size: 14px; color: rgba(255,255,255,0.6); pointer-events: none;
   }
-  .pillar-toggle svg { width: 14px; height: 14px; fill: none; stroke: var(--text-secondary); stroke-width: 2; stroke-linecap: round; }
-  .pillar.active-pillar .pillar-toggle { transform: rotate(180deg); background: rgba(255,255,255,0.1); }
-  .pillar.active-pillar .pillar-toggle svg { stroke: var(--text-primary); }
+  .pillar.collapsed .pillar-toggle { transform: rotate(0deg); }
+  .pillar:not(.collapsed) .pillar-toggle { transform: rotate(45deg); background: rgba(255,255,255,0.15); color: #fff; }
 
-  .pillar-num {
-    font-size: 11px; font-weight: 700;
-    letter-spacing: 0.08em; text-transform: uppercase;
-    margin-bottom: 16px; opacity: 0.7;
+  .pillar-glow {
+    position: absolute; width: 200px; height: 200px; border-radius: 50%; filter: blur(60px);
+    opacity: 0.18; top: -60px; right: -60px; pointer-events: none;
   }
+  .pillar.blue .pillar-glow  { background: var(--blue); }
+  .pillar.green .pillar-glow { background: var(--green); }
+  .pillar.orange .pillar-glow{ background: var(--orange); }
+
+  .pillar-num { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 12px; opacity: 0.7; }
   .pillar.blue .pillar-num  { color: var(--blue); }
   .pillar.green .pillar-num { color: var(--green); }
   .pillar.orange .pillar-num{ color: var(--orange); }
 
-  .pillar-title { font-size: 24px; font-weight: 700; line-height: 1.1; margin-bottom: 10px; letter-spacing: -0.02em; }
-  .pillar-desc { font-size: 14px; font-weight: 400; color: var(--text-secondary); line-height: 1.5; padding-right: 20px; }
+  .pillar-icon-wrap {
+    width: 56px; height: 56px; border-radius: 18px;
+    display: flex; align-items: center; justify-content: center; margin-bottom: 16px;
+  }
+  .pillar.blue .pillar-icon-wrap  { background: var(--blue-glow);  border: 1px solid rgba(10,132,255,0.3); }
+  .pillar.green .pillar-icon-wrap { background: var(--green-glow); border: 1px solid rgba(48,209,88,0.3); }
+  .pillar.orange .pillar-icon-wrap{ background: var(--orange-glow);border: 1px solid rgba(255,159,10,0.3); }
 
-  /* Collapsible body */
+  .pillar-title { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; margin-bottom: 8px; }
+  .pillar-desc { font-size: 13.5px; font-weight: 300; color: var(--text-secondary); line-height: 1.65; font-family: 'DM Sans', sans-serif; max-width: calc(100% - 40px); }
+
+  /* Body expansível / Accordion */
   .pillar-body-wrapper {
-    display: grid;
-    grid-template-rows: 0fr;
-    transition: grid-template-rows 0.5s var(--ease-apple);
+    overflow: hidden; max-height: 1000px;
+    transition: max-height 0.5s cubic-bezier(0.16,1,0.3,1), opacity 0.4s ease;
+    opacity: 1;
   }
-  
-  .pillar.active-pillar .pillar-body-wrapper {
-    grid-template-rows: 1fr;
-  }
+  .pillar.collapsed .pillar-body-wrapper { max-height: 0; opacity: 0; }
 
   .pillar-body {
-    overflow: hidden;
-    padding: 0 24px;
-    opacity: 0;
-    transform: translateY(-10px);
-    transition: opacity 0.4s ease 0.1s, transform 0.4s ease 0.1s;
-  }
-  
-  .pillar.active-pillar .pillar-body {
-    opacity: 1;
-    transform: translateY(0);
-    padding-bottom: 28px;
+    padding: 0 20px 20px; display: flex; flex-direction: column; gap: 10px;
   }
 
+  /* Cards de Funcionalidade interativos */
   .feat {
-    display: flex; align-items: flex-start; gap: 16px;
-    padding: 16px;
-    margin-bottom: 12px;
-    background: rgba(0,0,0,0.2);
-    border-radius: var(--radius-md);
-    border: 1px solid rgba(255,255,255,0.03);
-    transition: transform 0.2s, background 0.2s;
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 14px 16px; background: var(--surface2);
+    border-radius: 14px; border: 1px solid var(--border);
+    transition: transform 0.2s ease, border-color 0.2s ease;
+    position: relative; overflow: hidden; cursor: pointer;
   }
-  .feat:active { transform: scale(0.97); background: rgba(255,255,255,0.05); }
+  /* Spotlight effect overlay */
+  .feat::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(circle 80px at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.08), transparent);
+    opacity: 0; transition: opacity 0.3s; pointer-events: none;
+  }
+  .feat:active { transform: scale(0.97); }
+  .feat:active::before { opacity: 1; }
+
+  .pillar.blue .feat.active-touch   { border-color: rgba(10,132,255,0.4); }
+  .pillar.green .feat.active-touch  { border-color: rgba(48,209,88,0.4); }
+  .pillar.orange .feat.active-touch { border-color: rgba(255,159,10,0.4); }
 
   .feat-icon {
-    width: 40px; height: 40px;
-    border-radius: 12px;
+    width: 38px; height: 38px; border-radius: 10px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 20px; flex-shrink: 0;
+    font-size: 18px; flex-shrink: 0;
   }
-  .pillar.blue .feat-icon   { background: rgba(10,132,255,0.15); box-shadow: inset 0 0 10px rgba(10,132,255,0.1); }
-  .pillar.green .feat-icon  { background: rgba(48,209,88,0.15); box-shadow: inset 0 0 10px rgba(48,209,88,0.1); }
-  .pillar.orange .feat-icon { background: rgba(255,159,10,0.15); box-shadow: inset 0 0 10px rgba(255,159,10,0.1); }
+  .pillar.blue .feat-icon   { background: rgba(10,132,255,0.1); }
+  .pillar.green .feat-icon  { background: rgba(48,209,88,0.1); }
+  .pillar.orange .feat-icon { background: rgba(255,159,10,0.1); }
 
-  .feat-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; color: var(--text-primary); }
-  .feat-sub { font-size: 13px; color: var(--text-secondary); line-height: 1.4; }
+  .feat-content { flex: 1; }
+  .feat-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; line-height: 1.3; }
+  .feat-sub { font-size: 12px; color: var(--text-secondary); line-height: 1.5; font-family: 'DM Sans', sans-serif; font-weight: 300; }
 
-  /* Stat card */
+  /* Estatísticas */
   .pillar-stat {
-    margin-top: 20px;
-    padding: 20px;
-    border-radius: var(--radius-md);
-    background: rgba(255,255,255,0.03);
-    border: 1px solid var(--glass-border);
-    display: flex; align-items: center; gap: 16px;
+    margin-top: 4px; padding: 16px 18px; border-radius: 14px;
+    border: 1px solid; display: flex; align-items: center; gap: 14px; position: relative;
   }
+  .pillar.blue .pillar-stat  { border-color: rgba(10,132,255,0.2);  background: rgba(10,132,255,0.06); }
+  .pillar.green .pillar-stat { border-color: rgba(48,209,88,0.2);   background: rgba(48,209,88,0.06); }
+  .pillar.orange .pillar-stat{ border-color: rgba(255,159,10,0.2);  background: rgba(255,159,10,0.06); }
 
-  .stat-num { font-size: 36px; font-weight: 700; letter-spacing: -0.04em; line-height: 1; }
+  .stat-num { font-size: 32px; font-weight: 800; letter-spacing: -0.04em; line-height: 1; min-width: 72px; }
   .pillar.blue .stat-num  { color: var(--blue); }
   .pillar.green .stat-num { color: var(--green); }
   .pillar.orange .stat-num{ color: var(--orange); }
 
-  .stat-text { font-size: 13px; color: var(--text-secondary); line-height: 1.4; }
-  .stat-source { font-size: 10px; color: rgba(255,255,255,0.3); margin-top: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .stat-text { font-size: 12px; color: var(--text-secondary); line-height: 1.4; font-family: 'DM Sans', sans-serif; }
+  .stat-source { font-size: 10px; color: rgba(242,242,247,0.4); margin-top: 4px; letter-spacing: 0.02em; }
+
+  /* ── CHALLENGES SECTION (NOVO) ── */
+  .challenges {
+    margin: 0 20px 40px; padding: 28px 24px;
+    background: linear-gradient(145deg, #1A0505 0%, #0A0505 100%);
+    border: 1px solid rgba(255,69,58,0.2);
+    border-radius: var(--radius); position: relative; overflow: hidden;
+    opacity: 0; transform: translateY(30px);
+    transition: opacity 0.7s, transform 0.7s;
+  }
+  .challenges.visible { opacity: 1; transform: translateY(0); }
+  
+  .ch-glow {
+    position: absolute; width: 150px; height: 150px; border-radius: 50%;
+    background: var(--red); filter: blur(70px); opacity: 0.15; top: -50px; right: -50px;
+  }
+  
+  .ch-header { margin-bottom: 20px; position: relative; z-index: 2; }
+  .ch-label { font-size: 11px; font-weight: 700; color: var(--red); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
+  .ch-title { font-size: 20px; font-weight: 700; line-height: 1.2; margin-bottom: 6px; }
+  .ch-desc { font-size: 13px; color: var(--text-secondary); font-family: 'DM Sans', sans-serif; }
+
+  .ch-grid { display: grid; grid-template-columns: 1fr; gap: 10px; position: relative; z-index: 2; }
+  .ch-item {
+    background: rgba(255,69,58,0.05); border: 1px solid rgba(255,69,58,0.15);
+    border-radius: 12px; padding: 12px 14px; display: flex; align-items: center; gap: 12px;
+  }
+  .ch-icon { font-size: 20px; }
+  .ch-text strong { display: block; font-size: 12px; color: #fff; margin-bottom: 2px; }
+  .ch-text span { display: block; font-size: 11px; color: var(--text-secondary); font-family: 'DM Sans', sans-serif; line-height: 1.3; }
 
   /* ── FOOTER ── */
   .footer {
-    padding: 30px 24px max(40px, env(safe-area-inset-bottom));
-    text-align: center;
-    border-top: 1px solid var(--glass-border);
+    padding: 20px 24px max(30px, env(safe-area-inset-bottom)); text-align: center;
+    border-top: 1px solid var(--border); margin: 0 20px 20px; position: relative;
   }
-  
-  .footer-text { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
-  
-  @keyframes slideUpFade {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+  .footer::before {
+    content: ''; position: absolute; top: -1px; left: 50%; transform: translateX(-50%);
+    width: 60px; height: 2px; background: linear-gradient(90deg, var(--blue), var(--purple), var(--green)); border-radius: 2px;
   }
+  .footer-text { font-size: 11px; color: var(--text-secondary); line-height: 1.7; letter-spacing: 0.01em; font-family: 'DM Sans', sans-serif; }
+  .footer-dots { display: flex; justify-content: center; gap: 6px; margin-bottom: 14px; }
+  .fdot { width: 6px; height: 6px; border-radius: 50%; animation: fdotGlow 3s ease-in-out infinite; }
+  .fdot:nth-child(1) { background: var(--blue); box-shadow: 0 0 6px var(--blue); animation-delay: 0s; }
+  .fdot:nth-child(2) { background: var(--green); box-shadow: 0 0 6px var(--green); animation-delay: 0.5s; }
+  .fdot:nth-child(3) { background: var(--orange); box-shadow: 0 0 6px var(--orange); animation-delay: 1s; }
+
+  /* ── NAV DOTS (Mobile Otimizado) ── */
+  .nav-dots {
+    position: fixed; right: 8px; top: 50%; transform: translateY(-50%);
+    display: flex; flex-direction: column; gap: 12px; z-index: 100;
+    padding: 10px; /* Aumenta a área de toque geral */
+  }
+
+  .ndot {
+    width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.25);
+    transition: all 0.3s cubic-bezier(0.16,1,0.3,1); position: relative;
+    /* Expanding touch target */
+  }
+  .ndot::before {
+    content: ''; position: absolute; top: -10px; left: -15px; right: -15px; bottom: -10px;
+  }
+  .ndot::after {
+    content: attr(data-label); position: absolute; right: 18px; top: 50%; transform: translateY(-50%);
+    background: rgba(15,15,24,0.95); backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.1); border-radius: 6px;
+    padding: 4px 8px; font-size: 10px; font-weight: 600; color: var(--text);
+    white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
+  }
+  .ndot:active::after { opacity: 1; }
+  .ndot.active { background: white; height: 24px; border-radius: 3px; box-shadow: 0 0 8px rgba(255,255,255,0.6); }
+
 </style>
 </head>
 <body>
 
-<div class="bg-blobs">
-  <div class="blob b1"></div>
-  <div class="blob b2"></div>
-  <div class="blob b3"></div>
-</div>
-
 <div class="progress-bar" id="progress"></div>
 
+<nav class="nav-dots" aria-label="Navegação por seções">
+  <div class="ndot active" data-label="Início"    onclick="scrollTo({top:0,behavior:'smooth'})"></div>
+  <div class="ndot"        data-label="ODS"       onclick="document.querySelector('.ods-intro').scrollIntoView({behavior:'smooth', block:'start'})"></div>
+  <div class="ndot"        data-label="Conectividade" onclick="document.querySelectorAll('.pillar')[0].scrollIntoView({behavior:'smooth', block:'start'})"></div>
+  <div class="ndot"        data-label="Sustentabilidade" onclick="document.querySelectorAll('.pillar')[1].scrollIntoView({behavior:'smooth', block:'start'})"></div>
+  <div class="ndot"        data-label="Segurança" onclick="document.querySelectorAll('.pillar')[2].scrollIntoView({behavior:'smooth', block:'start'})"></div>
+  <div class="ndot"        data-label="Desafios"  onclick="document.querySelector('.challenges').scrollIntoView({behavior:'smooth', block:'center'})"></div>
+</nav>
+
 <section class="hero">
+  <canvas id="particle-canvas"></canvas>
   <div class="hero-globe">
+    <div class="globe-pulse">
+      <div class="pulse-ring"></div>
+      <div class="pulse-ring"></div>
+      <div class="pulse-ring"></div>
+    </div>
     <svg class="globe-svg" viewBox="0 0 320 320" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="160" cy="160" r="140" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
-      <circle cx="160" cy="160" r="100" stroke="rgba(255,255,255,0.1)" stroke-width="0.5" stroke-dasharray="4 4"/>
-      <ellipse cx="160" cy="160" rx="140" ry="40" stroke="rgba(10,132,255,0.2)" stroke-width="1"/>
-      <ellipse cx="160" cy="160" rx="40" ry="140" stroke="rgba(191,90,242,0.2)" stroke-width="1"/>
-      <path d="M160 20 L160 300 M20 160 L300 160" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
-      <circle cx="160" cy="120" r="3" fill="#0A84FF" filter="drop-shadow(0 0 8px #0A84FF)"/>
-      <circle cx="200" cy="160" r="3" fill="#30D158" filter="drop-shadow(0 0 8px #30D158)"/>
-      <circle cx="120" cy="160" r="3" fill="#BF5AF2" filter="drop-shadow(0 0 8px #BF5AF2)"/>
+      <defs>
+        <radialGradient id="sphereGrad" cx="40%" cy="35%" r="60%">
+          <stop offset="0%" stop-color="#1A2A4A"/>
+          <stop offset="100%" stop-color="#05050A"/>
+        </radialGradient>
+        <radialGradient id="glowOuter" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#0A84FF" stop-opacity="0.15"/>
+          <stop offset="100%" stop-color="#0A84FF" stop-opacity="0"/>
+        </radialGradient>
+        <filter id="blur1"><feGaussianBlur stdDeviation="8"/></filter>
+        <filter id="blur2"><feGaussianBlur stdDeviation="2"/></filter>
+        <clipPath id="sphereClip"><circle cx="160" cy="160" r="120"/></clipPath>
+      </defs>
+      <circle cx="160" cy="160" r="155" fill="url(#glowOuter)"/>
+      <circle cx="160" cy="160" r="128" fill="none" stroke="#0A84FF" stroke-width="1" opacity="0.2"/>
+      <circle cx="160" cy="160" r="138" fill="none" stroke="#0A84FF" stroke-width="0.5" opacity="0.1"/>
+      <circle cx="160" cy="160" r="120" fill="url(#sphereGrad)"/>
+      <g clip-path="url(#sphereClip)" opacity="0.25">
+        <ellipse cx="160" cy="130" rx="120" ry="30" fill="none" stroke="#0A84FF" stroke-width="0.8"/>
+        <ellipse cx="160" cy="160" rx="120" ry="12" fill="none" stroke="#0A84FF" stroke-width="0.8"/>
+        <ellipse cx="160" cy="190" rx="120" ry="30" fill="none" stroke="#0A84FF" stroke-width="0.8"/>
+        <line x1="40" y1="160" x2="280" y2="160" stroke="#0A84FF" stroke-width="0.8"/>
+        <ellipse cx="160" cy="160" rx="35" ry="120" fill="none" stroke="#0A84FF" stroke-width="0.8"/>
+        <ellipse cx="160" cy="160" rx="70" ry="120" fill="none" stroke="#0A84FF" stroke-width="0.8"/>
+        <ellipse cx="160" cy="160" rx="105" ry="120" fill="none" stroke="#0A84FF" stroke-width="0.8"/>
+        <line x1="160" y1="40" x2="160" y2="280" stroke="#0A84FF" stroke-width="0.8"/>
+      </g>
+      <g clip-path="url(#sphereClip)">
+        <circle cx="130" cy="120" r="3" fill="#0A84FF" opacity="0.9" filter="url(#blur2)"/>
+        <circle cx="126" cy="116" r="1.5" fill="white" opacity="0.9"/>
+        <circle cx="195" cy="135" r="2.5" fill="#30D158" opacity="0.9" filter="url(#blur2)"/>
+        <circle cx="192" cy="132" r="1.2" fill="white" opacity="0.8"/>
+        <circle cx="155" cy="180" r="3.5" fill="#FF9F0A" opacity="0.9" filter="url(#blur2)"/>
+        <circle cx="152" cy="177" r="1.5" fill="white" opacity="0.9"/>
+        <circle cx="210" cy="165" r="2" fill="#BF5AF2" opacity="0.9"/>
+        <circle cx="100" cy="150" r="2.5" fill="#0A84FF" opacity="0.7"/>
+        <circle cx="175" cy="110" r="2" fill="#30D158" opacity="0.8"/>
+        <circle cx="220" cy="185" r="2" fill="#FF9F0A" opacity="0.7"/>
+        <circle cx="140" cy="200" r="2" fill="#0A84FF" opacity="0.6"/>
+        <circle cx="180" cy="200" r="1.5" fill="#30D158" opacity="0.6"/>
+        <line x1="126" y1="116" x2="192" y2="132" stroke="#0A84FF" stroke-width="0.6" opacity="0.4"/>
+        <line x1="192" y1="132" x2="152" y2="177" stroke="#30D158" stroke-width="0.6" opacity="0.4"/>
+        <line x1="126" y1="116" x2="152" y2="177" stroke="#BF5AF2" stroke-width="0.6" opacity="0.3"/>
+        <line x1="192" y1="132" x2="210" y2="165" stroke="#FF9F0A" stroke-width="0.6" opacity="0.4"/>
+        <line x1="152" y1="177" x2="210" y2="165" stroke="#FF9F0A" stroke-width="0.6" opacity="0.3"/>
+        <circle cx="152" cy="177" r="6" fill="none" stroke="#FF9F0A" stroke-width="1" opacity="0">
+          <animate attributeName="r" values="3;10" dur="2s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.6;0" dur="2s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="126" cy="116" r="6" fill="none" stroke="#0A84FF" stroke-width="1" opacity="0">
+          <animate attributeName="r" values="3;10" dur="2.5s" begin="0.8s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.6;0" dur="2.5s" begin="0.8s" repeatCount="indefinite"/>
+        </circle>
+      </g>
+      <circle cx="160" cy="160" r="120" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1.5"/>
+      <ellipse cx="130" cy="95" rx="35" ry="20" fill="rgba(255,255,255,0.04)" transform="rotate(-20,130,95)"/>
+      <ellipse cx="160" cy="160" rx="150" ry="40" fill="none" stroke="rgba(10,132,255,0.2)" stroke-width="1" stroke-dasharray="4,6"/>
+      <circle cx="310" cy="160" r="4" fill="#0A84FF" opacity="0.8">
+        <animateTransform attributeName="transform" type="rotate" from="0 160 160" to="360 160 160" dur="12s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="10" cy="160" r="2.5" fill="#30D158" opacity="0.6">
+        <animateTransform attributeName="transform" type="rotate" from="180 160 160" to="540 160 160" dur="18s" repeatCount="indefinite"/>
+      </circle>
     </svg>
   </div>
 
   <div class="hero-content">
     <div class="ods-badges">
-      <div class="badge badge-9"><span class="badge-dot"></span>ODS 9</div>
-      <div class="badge badge-11"><span class="badge-dot"></span>ODS 11</div>
+      <div class="badge badge-9"><span class="badge-dot"></span>ODS 9 · Infraestrutura</div>
+      <div class="badge badge-11"><span class="badge-dot"></span>ODS 11 · Cidades</div>
     </div>
-    <h1 class="hero-title">Cidades<br><span>Inteligentes</span></h1>
-    <p class="hero-sub">Inovação urbana e sustentabilidade convergindo em um sistema fluido e responsivo.</p>
+    <h1 class="hero-title">Cidades<br><em>Inteligentes</em></h1>
+    <p class="hero-sub">Quando inovação urbana e sustentabilidade convergem num único ecossistema responsivo.</p>
     <div class="scroll-hint">
-      <div class="scroll-icon"><div class="scroll-dot"></div></div>
+      <div class="scroll-pill"><div class="scroll-dot"></div></div>
+      <span class="scroll-label">Explore</span>
     </div>
   </div>
 </section>
 
 <section class="ods-intro">
-  <p class="section-label">A Convergência</p>
+  <p class="section-label">Os Objetivos</p>
   <div class="ods-cards">
-    <div class="glass-card nine">
+    <div class="ods-card nine">
       <span class="ods-icon-big">🏗️</span>
       <div class="ods-number">ODS 9</div>
-      <div class="ods-name">Indústria e Infraestrutura</div>
+      <div class="ods-name">Indústria, Inovação e Infraestrutura</div>
     </div>
-    <div class="glass-card eleven">
+    <div class="ods-card eleven">
       <span class="ods-icon-big">🌆</span>
       <div class="ods-number">ODS 11</div>
-      <div class="ods-name">Cidades Sustentáveis</div>
+      <div class="ods-name">Cidades e Comunidades Sustentáveis</div>
     </div>
   </div>
-  <div class="glass-card unifier">
+  <div class="unifier">
     <div class="unifier-icon">🌐</div>
     <div class="unifier-text">
-      A tecnologia da ODS 9 atua como o sistema nervoso que permite a gestão sustentável exigida pela ODS 11.
+      <strong>A intersecção:</strong> A tecnologia da ODS 9 deixa de ser acessório e passa a ser a ferramenta de sobrevivência para garantir a ODS 11.
     </div>
   </div>
 </section>
 
-<div class="pillars">
+<div class="pillars" id="pillars-container">
 
-  <article class="pillar blue active-pillar" data-index="0">
-    <div class="pillar-header" onclick="togglePillar(this)">
-      <div class="pillar-toggle">
-        <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
-      </div>
+  <article class="pillar blue" data-index="0">
+    <div class="pillar-header" onclick="toggleAccordion(this)">
+      <div class="pillar-glow"></div>
+      <div class="pillar-toggle">+</div>
       <div class="pillar-num">Pilar 01</div>
+      <div class="pillar-icon-wrap">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M14 6C9.58 6 5.62 7.87 2.8 10.87L5.07 13.14C7.28 10.76 10.48 9.25 14 9.25C17.52 9.25 20.72 10.76 22.93 13.14L25.2 10.87C22.38 7.87 18.42 6 14 6Z" fill="#0A84FF"/><path d="M14 10.5C11.3 10.5 8.86 11.6 7.1 13.4L9.37 15.67C10.55 14.41 12.18 13.6 14 13.6C15.82 13.6 17.45 14.41 18.63 15.67L20.9 13.4C19.14 11.6 16.7 10.5 14 10.5Z" fill="#0A84FF" opacity="0.7"/><circle cx="14" cy="19.5" r="3" fill="#0A84FF"/></svg>
+      </div>
       <h2 class="pillar-title">Conectividade<br>e Digitalização</h2>
-      <p class="pillar-desc">Redes digitais como base de toda a inteligência urbana.</p>
+      <p class="pillar-desc">O "sistema nervoso" urbano. Sensores integrados gerando dados dinâmicos em tempo real.</p>
     </div>
     <div class="pillar-body-wrapper">
       <div class="pillar-body">
@@ -506,20 +606,20 @@
           <div class="feat-icon">📡</div>
           <div class="feat-content">
             <div class="feat-title">IoT e Redes 5G</div>
-            <div class="feat-sub">Sensores monitoram trânsito e qualidade do ar em tempo real.</div>
+            <div class="feat-sub">Dispositivos conectados monitoram trânsito, energia e qualidade do ar ininterruptamente.</div>
           </div>
         </div>
         <div class="feat">
           <div class="feat-icon">🧠</div>
           <div class="feat-content">
-            <div class="feat-title">Data Centers Urbanos</div>
-            <div class="feat-sub">Processamento de dados para decisões públicas instantâneas.</div>
+            <div class="feat-title">Cérebros Municipais (IA)</div>
+            <div class="feat-sub">Processamento central para reagir a problemas antes mesmo da burocracia humana agir.</div>
           </div>
         </div>
         <div class="pillar-stat">
-          <div class="stat-num" data-target="68" data-suffix="%">0%</div>
+          <div class="stat-num" data-target="68" data-suffix="%">68%</div>
           <div>
-            <div class="stat-text">da população global viverá em cidades até 2050.</div>
+            <div class="stat-text">da população global viverá em áreas urbanas até 2050, exigindo essa malha digital.</div>
             <div class="stat-source">ONU-Habitat, 2022</div>
           </div>
         </div>
@@ -527,72 +627,76 @@
     </div>
   </article>
 
-  <article class="pillar green" data-index="1">
-    <div class="pillar-header" onclick="togglePillar(this)">
-      <div class="pillar-toggle">
-        <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
-      </div>
+  <article class="pillar green collapsed" data-index="1">
+    <div class="pillar-header" onclick="toggleAccordion(this)">
+      <div class="pillar-glow"></div>
+      <div class="pillar-toggle">+</div>
       <div class="pillar-num">Pilar 02</div>
+      <div class="pillar-icon-wrap">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M14 3C14 3 6 9 6 16C6 20.42 9.58 24 14 24C18.42 24 22 20.42 22 16C22 9 14 3 14 3Z" fill="#30D158" opacity="0.3"/><path d="M14 8C14 8 9 12.5 9 16.5C9 19.26 11.24 21.5 14 21.5C16.76 21.5 19 19.26 19 16.5C19 12.5 14 8 14 8Z" fill="#30D158" opacity="0.6"/><circle cx="14" cy="16.5" r="3.5" fill="#30D158"/></svg>
+      </div>
       <h2 class="pillar-title">Sustentabilidade<br>e Gestão</h2>
-      <p class="pillar-desc">Otimização de recursos e resiliência climática por meio de dados.</p>
+      <p class="pillar-desc">Transição da gestão reativa para a preditiva, otimizando o uso dos recursos naturais.</p>
     </div>
     <div class="pillar-body-wrapper">
       <div class="pillar-body">
         <div class="feat">
           <div class="feat-icon">⚡</div>
           <div class="feat-content">
-            <div class="feat-title">Smart Grids (Redes Elétricas)</div>
-            <div class="feat-sub">Distribuição adaptável e integração de energia limpa (solar/eólica).</div>
+            <div class="feat-title">Smart Grids de Energia</div>
+            <div class="feat-sub">Redes que distribuem eletricidade limpa baseadas na demanda exata de cada bairro.</div>
           </div>
         </div>
         <div class="feat">
-          <div class="feat-icon">💧</div>
+          <div class="feat-icon">♻️</div>
           <div class="feat-content">
-            <div class="feat-title">Gestão Inteligente de Resíduos</div>
-            <div class="feat-sub">Lixeiras conectadas otimizam rotas de caminhões, poupando combustível.</div>
+            <div class="feat-title">Logística Reversa Otimizada</div>
+            <div class="feat-sub">Caminhões de coleta rodam apenas em rotas onde lixeiras com sensores já estão cheias.</div>
           </div>
         </div>
         <div class="pillar-stat">
-          <div class="stat-num" data-target="30" data-suffix="%">0%</div>
+          <div class="stat-num" data-target="30" data-suffix="%">30%</div>
           <div>
-            <div class="stat-text">de redução de emissões globais projetadas se cidades adotarem sistemas inteligentes focados em mobilidade e construções.</div>
-            <div class="stat-source">ONU Programa Ambiental, 2023</div>
+            <div class="stat-text">é a estimativa máxima de redução de emissões com mobilidade e infraestruturas conectadas.</div>
+            <div class="stat-source">McKinsey / IEA Analytics</div>
           </div>
         </div>
       </div>
     </div>
   </article>
 
-  <article class="pillar orange" data-index="2">
-    <div class="pillar-header" onclick="togglePillar(this)">
-      <div class="pillar-toggle">
-        <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
-      </div>
+  <article class="pillar orange collapsed" data-index="2">
+    <div class="pillar-header" onclick="toggleAccordion(this)">
+      <div class="pillar-glow"></div>
+      <div class="pillar-toggle">+</div>
       <div class="pillar-num">Pilar 03</div>
-      <h2 class="pillar-title">Segurança<br>Urbana</h2>
-      <p class="pillar-desc">Prevenção ativa contra desastres ambientais e ciberataques.</p>
+      <div class="pillar-icon-wrap">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M14 3L5 7V15C5 19.97 8.9 24.6 14 26C19.1 24.6 23 19.97 23 15V7L14 3Z" fill="#FF9F0A" opacity="0.25"/><path d="M14 6L8 9V15C8 18.58 10.63 21.89 14 23C17.37 21.89 20 18.58 20 15V9L14 6Z" fill="#FF9F0A" opacity="0.5"/><path d="M12 15L10.5 13.5L9.5 14.5L12 17L18.5 10.5L17.5 9.5L12 15Z" fill="#FF9F0A"/></svg>
+      </div>
+      <h2 class="pillar-title">Segurança<br>Inteligente</h2>
+      <p class="pillar-desc">A intersecção prática: iluminação e sensores agindo para proteção humana e climática.</p>
     </div>
     <div class="pillar-body-wrapper">
       <div class="pillar-body">
         <div class="feat">
           <div class="feat-icon">🌊</div>
           <div class="feat-content">
-            <div class="feat-title">Prevenção Climática Preditiva</div>
-            <div class="feat-sub">Sensores hidrológicos alertam áreas de risco sobre enchentes.</div>
+            <div class="feat-title">Mitigação de Desastres</div>
+            <div class="feat-sub">Sensores de encostas e rios alertam instantaneamente moradores pelo celular.</div>
           </div>
         </div>
         <div class="feat">
-          <div class="feat-icon">🔐</div>
+          <div class="feat-icon">💡</div>
           <div class="feat-content">
-            <div class="feat-title">Cibersegurança Integrada</div>
-            <div class="feat-sub">Proteção rigorosa de infraestruturas como hospitais e redes elétricas.</div>
+            <div class="feat-title">Iluminação Reativa LED</div>
+            <div class="feat-sub">Postes que clareiam ao detectar movimento, inibindo crimes e economizando energia.</div>
           </div>
         </div>
         <div class="pillar-stat">
-          <div class="stat-num" data-target="40" data-suffix="%">0%</div>
+          <div class="stat-num" data-target="40" data-suffix="%">40%</div>
           <div>
-            <div class="stat-text">de potencial redução de fatalidades urbanas com resposta rápida gerida por IA.</div>
-            <div class="stat-source">McKinsey Global Institute</div>
+            <div class="stat-text">de potencial queda em incidentes criminais em áreas com monitoramento integrado.</div>
+            <div class="stat-source">McKinsey Global Institute, 2018</div>
           </div>
         </div>
       </div>
@@ -601,74 +705,193 @@
 
 </div>
 
-<footer class="footer">
-  <p class="footer-text">Desenvolvido para apresentação ODS 9 & 11.<br>Pensado para o futuro.</p>
-</footer>
+<section class="challenges">
+  <div class="ch-glow"></div>
+  <div class="ch-header">
+    <div class="ch-label">Perspectiva Crítica</div>
+    <h2 class="ch-title">O Choque de Realidade</h2>
+    <p class="ch-desc">Cidades 100% inteligentes ainda são utopias limitadas a projetos-piloto. Veja por quê:</p>
+  </div>
+  <div class="ch-grid">
+    <div class="ch-item">
+      <span class="ch-icon">🏗️</span>
+      <div class="ch-text"><strong>Infraestrutura Legada</strong><span>Custa bilhões modernizar tubulações e redes de capitais centenárias.</span></div>
+    </div>
+    <div class="ch-item">
+      <span class="ch-icon">🧩</span>
+      <div class="ch-text"><strong>Silos de Dados</strong><span>Sistemas de saúde, trânsito e energia usam softwares que não conversam entre si.</span></div>
+    </div>
+    <div class="ch-item">
+      <span class="ch-icon">📉</span>
+      <div class="ch-text"><strong>Exclusão Digital</strong><span>A tecnologia falha na ODS 11 quando atende só áreas nobres, aumentando a desigualdade.</span></div>
+    </div>
+    <div class="ch-item">
+      <span class="ch-icon">👁️</span>
+      <div class="ch-text"><strong>Vigilância vs Privacidade</strong><span>Monitorar a cidade para otimizá-la gera dilemas éticos profundos sobre controle de dados.</span></div>
+    </div>
+  </div>
+</section>
+
+<div class="footer">
+  <div class="footer-dots">
+    <div class="fdot"></div>
+    <div class="fdot"></div>
+    <div class="fdot"></div>
+  </div>
+  <p class="footer-text">
+    A tecnologia já existe. O desafio agora é torná-la<br>financeiramente viável, integrada e, acima de tudo,<br><strong>socialmente justa.</strong>
+  </p>
+</div>
 
 <script>
-/* ── Progress Bar ── */
+/* ─── PROGRESS BAR ─── */
+const progressBar = document.getElementById('progress');
 window.addEventListener('scroll', () => {
-  const scrollPx = document.documentElement.scrollTop;
-  const winHeightPx = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-  const scrolled = `${scrollPx / winHeightPx * 100}%`;
-  document.getElementById('progress').style.width = scrolled;
+  const max = document.documentElement.scrollHeight - window.innerHeight;
+  progressBar.style.width = (window.scrollY / max * 100) + '%';
 }, { passive: true });
 
-/* ── Pillar Accordion Logic (Apple Style) ── */
-function togglePillar(header) {
-  const pillar = header.closest('.pillar');
+/* ─── PARTICLE CANVAS (Mobile Safe) ─── */
+(function() {
+  const canvas = document.getElementById('particle-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [];
+
+  function resize() {
+    // Evita resize brusco no mobile por causa da barra de endereço sumindo
+    if (W === window.innerWidth && Math.abs(H - window.innerHeight) < 100) return; 
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+    initParticles();
+  }
   
-  // Opcional: Descomente as próximas 4 linhas se quiser que apenas 1 pilar fique aberto por vez
-  /*
-  document.querySelectorAll('.pillar').forEach(p => {
-    if (p !== pillar) p.classList.remove('active-pillar');
-  });
-  */
+  function initParticles() {
+    particles = [];
+    const COLORS = ['rgba(10,132,255,', 'rgba(48,209,88,', 'rgba(191,90,242,', 'rgba(255,159,10,'];
+    const amount = window.innerWidth < 768 ? 15 : 30; // Menos partículas no mobile
+    for (let i = 0; i < amount; i++) {
+      particles.push({
+        x: Math.random() * W, y: Math.random() * H, r: Math.random() * 1.5 + 0.4,
+        vx: (Math.random() - 0.5) * 0.3, vy: (Math.random() - 0.5) * 0.3,
+        color: COLORS[Math.floor(Math.random() * COLORS.length)], a: Math.random() * 0.5 + 0.2
+      });
+    }
+  }
+
+  resize();
+  window.addEventListener('resize', resize, { passive: true });
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    particles.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+      if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = p.color + p.a + ')'; ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ─── ACCORDION LOGIC (Mobile UX) ─── */
+function toggleAccordion(header) {
+  const currentPillar = header.closest('.pillar');
+  const allPillars = document.querySelectorAll('.pillar');
   
-  pillar.classList.toggle('active-pillar');
+  // Se estiver fechado, fecha os outros antes de abrir
+  if (currentPillar.classList.contains('collapsed')) {
+    allPillars.forEach(p => {
+      if(p !== currentPillar) p.classList.add('collapsed');
+    });
+    currentPillar.classList.remove('collapsed');
+    // Scroll suave para alinhar o pilar aberto
+    setTimeout(() => {
+      currentPillar.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 300);
+  } else {
+    currentPillar.classList.add('collapsed');
+  }
 }
 
-/* ── Intersection Observer for Entrance Animations ── */
-const observerOptions = {
-  root: null,
-  rootMargin: '0px',
-  threshold: 0.15
-};
-
-const observer = new IntersectionObserver((entries, observer) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add('visible');
-      
-      // Trigger stat counter if available
-      const statNum = entry.target.querySelector('.stat-num');
-      if (statNum && !statNum.classList.contains('counted')) {
-        animateValue(statNum, 0, parseInt(statNum.getAttribute('data-target')), 1500, statNum.getAttribute('data-suffix'));
-        statNum.classList.add('counted');
+/* ─── INTERSECTION OBSERVER (Animar Entrada) ─── */
+const observeElements = document.querySelectorAll('.pillar, .challenges');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      // Trigger counter animation
+      const statNum = e.target.querySelector('.stat-num');
+      if (statNum && !statNum.dataset.counted) {
+        animateCounter(statNum);
+        statNum.dataset.counted = 'true';
       }
     }
   });
-}, observerOptions);
+}, { threshold: 0.1 });
+observeElements.forEach(p => observer.observe(p));
 
-document.querySelectorAll('.pillar').forEach(p => {
-  observer.observe(p);
-});
-
-/* ── Counter Animation ── */
-function animateValue(obj, start, end, duration, suffix) {
-  let startTimestamp = null;
-  const step = (timestamp) => {
-    if (!startTimestamp) startTimestamp = timestamp;
-    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-    // easeOutExpo
-    const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
-    obj.innerHTML = Math.floor(easeProgress * (end - start) + start) + suffix;
-    if (progress < 1) {
-      window.requestAnimationFrame(step);
-    }
-  };
-  window.requestAnimationFrame(step);
+/* ─── COUNTER ANIMATION ─── */
+function animateCounter(el) {
+  const target = parseInt(el.dataset.target);
+  const suffix = el.dataset.suffix || '';
+  const duration = 1500;
+  const start = performance.now();
+  function step(now) {
+    const elapsed = now - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    el.textContent = Math.round(eased * target) + suffix;
+    if (progress < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
 }
+
+/* ─── NAV DOTS SYNC ─── */
+const ndots = document.querySelectorAll('.ndot');
+const sections = [
+  document.querySelector('.hero'),
+  document.querySelector('.ods-intro'),
+  ...document.querySelectorAll('.pillar'),
+  document.querySelector('.challenges')
+];
+
+const scrollObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const idx = sections.indexOf(e.target);
+      if (idx >= 0) {
+        ndots.forEach(d => d.classList.remove('active'));
+        if (ndots[idx]) ndots[idx].classList.add('active');
+      }
+    }
+  });
+}, { threshold: 0.25, rootMargin: '-10% 0px -40% 0px' });
+sections.forEach(s => { if (s) scrollObs.observe(s); });
+
+/* ─── SPOTLIGHT EFFECT & TOUCH FEEDBACK NOS CARDS ─── */
+document.querySelectorAll('.feat').forEach(card => {
+  // Efeito Spotlight para mouse/desktop
+  card.addEventListener('mousemove', e => {
+    const rect = card.getBoundingClientRect();
+    card.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
+    card.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
+  });
+  
+  // Feedback tátil para mobile
+  card.addEventListener('touchstart', (e) => {
+    card.classList.add('active-touch');
+    const rect = card.getBoundingClientRect();
+    const touch = e.touches[0];
+    card.style.setProperty('--mouse-x', `${touch.clientX - rect.left}px`);
+    card.style.setProperty('--mouse-y', `${touch.clientY - rect.top}px`);
+  }, {passive: true});
+  
+  card.addEventListener('touchend', () => {
+    setTimeout(() => card.classList.remove('active-touch'), 150);
+  }, {passive: true});
+});
 </script>
 </body>
 </html>
